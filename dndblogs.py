@@ -48,9 +48,13 @@ def post_reply(post_id, content):
         'authorization': 'Bearer ' + SQUABBLES_TOKEN
     }
     
-    resp = requests.post(f'https://squabblr.co/api/posts/{post_id}/reply', data={
+    resp = requests.post('https://squabblr.co/api/new-post', data={
+        "community_name": "TTRPG",
+        "title": title,
         "content": content
     }, headers=headers)
+
+    return resp.json()
     
     if resp.status_code in [200, 201]:
         logging.info(f"Successfully posted a reply for post ID: {post_id}")
