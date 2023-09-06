@@ -15,10 +15,10 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 logging.basicConfig(level=logging.INFO)
 
 # Constants
-SQUABBLES_TOKEN = os.environ.get('SQUABBLES_TOKEN')
+SQUABBLES_TOKEN = os.environ.get('DNDBLOGS_SQUABBLR_TOKEN')
 GIST_TOKEN =  os.environ.get('GITHUB_TOKEN')
-GIST_ID = os.environ.get('TLDRBOT_GIST')
-FILE_NAME = 'tldrbot.json'
+GIST_ID = os.environ.get('DNDBLOGS_GIST')
+FILE_NAME = 'dndblogs.json'
 GIST_URL = f"https://gist.githubusercontent.com/amightybeard/{GIST_ID}/raw/{FILE_NAME}"
 DATE_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 HEADERS = {
