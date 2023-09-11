@@ -30,84 +30,121 @@ MODEL_NAME = "facebook/bart-large-cnn"
 MODEL = BartForConditionalGeneration.from_pretrained(MODEL_NAME)
 TOKENIZER = BartTokenizer.from_pretrained(MODEL_NAME)
 
-canned_message_header = """
-This is the best TL;DR I could come up with for this article:
-
------
-"""
-
-canned_message_footer = """
-
------
-
-I am a bot. Post feedback to /s/ModBot.
-"""
-
-def post_reply(post_id, content):
+def fetch_gist_data(gist_id, token):
     headers = {
-        'authorization': 'Bearer ' + SQUABBLES_TOKEN
+        "Authorization": f"token {token}",
+        "Accept": "application/vnd.github.v3+json"
     }
-    
-    resp = requests.post('https://squabblr.co/api/new-post', data={
-        "community_name": "TTRPG",
-        "title": title,
-        "content": content
-    }, headers=headers)
+    gist_url = f"https://api.github.com/gists/{gist_id}"
+    response = requests.get(gist_url, headers=headers)
+    response.raise_for_status()
+    gist_content = list(response.json()["files"].values())[0]["content"]
+    return json.loads(gist_content)
 
-    return resp.json()
-    
-    if resp.status_code in [200, 201]:
-        logging.info(f"Successfully posted a reply for post ID: {post_id}")
-    else:
-        logging.warning(f"Failed to post a reply for post ID: {post_id}.")
-
-    # Log the response status and content
-    logging.info(f"Response status from Squabblr API when posting reply: {resp.status_code}")
-    logging.info(f"Response content from Squabblr API when posting reply: {resp.text}")
-    
-    return resp.json()
-
-from io import StringIO
-
-def fetch_last_processed_ids():
-    try:
-        resp = requests.get(GIST_URL)
-        resp.raise_for_status()
-        data = resp.json()
-        return data
-    except requests.RequestException as e:
-        logging.error(f"Failed to fetch processed IDs from Gist. Error: {e}")
-        return {}
-
-def save_processed_id(community, post_id):
-    data = fetch_last_processed_ids()
-    data[community]['last_processed_id'] = post_id
-    
+def update_tracker_gist(blog_name, new_date, gist_id, token):
+    current_data = fetch_gist_data(gist_id, token)
+    for entry in current_data:
+        if entry["blog_name"] == blog_name:
+            entry["last_fetched"] = new_date
+            break
     headers = {
-        'Authorization': f'token {GIST_TOKEN}',
-        'Accept': 'application/vnd.github.v3+json',
-        'Content-Type': 'application/json'
+        "Authorization": f"token {token}",
+        "Accept": "application/vnd.github.v3+json"
     }
-    
-    payload = {
+    gist_url = f"https://api.github.com/gists/{gist_id}"
+    updated_content = json.dumps(current_data, indent=4)
+    data = {
         "files": {
-            FILE_NAME: {
-                "content": json.dumps(data, indent=4)
+            "dndblogs-rss-tracker.json": {
+                "content": updated_content
             }
         }
     }
+    response = requests.patch(gist_url, headers=headers, json=data)
+    response.raise_for_status()
+    return response.status_code
 
-    try:
-        resp = requests.patch(f"https://api.github.com/gists/{GIST_ID}", headers=headers, json=payload)
-        resp.raise_for_status()
-    except requests.RequestException as e:
-        logging.error(f"Failed to update processed ID for {community}. Error: {e}. Resp: {resp}")
+def add_article_to_details_gist(url, title, date_published, gist_id, token):
+    current_data = fetch_gist_data(gist_id, token)
+    new_article = {
+        "url": url,
+        "title": title,
+        "date_published": date_published,
+        "posted": False
+    }
+    current_data.append(new_article)
+    headers = {
+        "Authorization": f"token {token}",
+        "Accept": "application/vnd.github.v3+json"
+    }
+    gist_url = f"https://api.github.com/gists/{gist_id}"
+    updated_content = json.dumps(current_data, indent=4)
+    data = {
+        "files": {
+            "dndblogs-article-details.json": {
+                "content": updated_content
+            }
+        }
+    }
+    response = requests.patch(gist_url, headers=headers, json=data)
+    response.raise_for_status()
+    return response.status_code
 
-def read_domain_blacklist(filename="includes/blacklist-domains.txt"):
-    with open(filename, 'r') as file:
-        blacklist = [line.strip() for line in file]
-    return blacklist
-    
+def mark_article_as_posted(url, gist_id, token):
+    current_data = fetch_gist_data(gist_id, token)
+    for article in current_data:
+        if article["url"] == url:
+            article["posted"] = True
+            break
+    headers = {
+        "Authorization": f"token {token}",
+        "Accept": "application/vnd.github.v3+json"
+    }
+    gist_url = f"https://api.github.com/gists/{gist_id}"
+    updated_content = json.dumps(current_data, indent=4)
+    data = {
+        "files": {
+            "dndblogs-article-details.json": {
+                "content": updated_content
+            }
+        }
+    }
+    response = requests.patch(gist_url, headers=headers, json=data)
+    response.raise_for_status()
+    return response.status_code
+
+def fetch_rss_articles_since_date_xml(rss_url, since_date):
+    response = requests.get(rss_url)
+    root = ET.fromstring(response.content)
+    namespace = {"ns": "http://purl.org/dc/elements/1.1/"}
+    articles = []
+    for item in root.findall(".//item"):
+        pub_date_text = item.find("pubDate").text if item.find("pubDate") is not None else item.find("ns:date", namespace).text
+        try:
+            pub_date = datetime.strptime(pub_date_text, "%a, %d %b %Y %H:%M:%S %Z")
+        except:
+            pub_date = datetime.strptime(pub_date_text, "%Y-%m-%dT%H:%M:%SZ")
+        if pub_date.strftime("%Y-%m-%d") > since_date:
+            articles.append({
+                "url": item.find("link").text,
+                "title": item.find("title").text,
+                "date_published": pub_date.strftime("%Y-%m-%d")
+            })
+    return articles
+
+# Functions related to summarizing and posting articles
+
+def summarize_and_post_article(details_gist_id, tracker_gist_id, token, squabblr_token):
+    article = fetch_oldest_unposted_article(details_gist_id, token)
+    if not article:
+        return "No unposted articles found."
+    summary = get_summary(article["url"])
+    title = article["title"]
+    content = f"{summary}\n\n[Read more]({article['url']})"
+    post_reply(title, content, squabblr_token)
+    mark_article_as_posted(article["url"], details_gist_id, token)
+    return f"Article '{title}' summarized and posted successfully."
+        
 def split_into_sentences(text):
     # Use regular expression to split sentences by common punctuation used at the end of sentences
     return re.split(r'(?<=[.!?])\s+', text)
@@ -266,63 +303,29 @@ def get_main_points(text, num_points=5):
 
     return main_points
 
-def get_latest_posts():
-    processed_ids = fetch_last_processed_ids()
-    domain_blacklist = read_domain_blacklist()
+def post_article(post_id, content):
+    headers = {
+        'authorization': 'Bearer ' + SQUABBLES_TOKEN
+    }
+    
+    resp = requests.post('https://squabblr.co/api/new-post', data={
+        "community_name": "test",
+        "title": title,
+        "content": content
+    }, headers=headers)
 
-    for community, data in processed_ids.items():
-        last_processed_id = data['last_processed_id']
+    return resp.json()
+    
+    if resp.status_code in [200, 201]:
+        logging.info(f"Successfully posted a reply for post ID: {post_id}")
+    else:
+        logging.warning(f"Failed to post a reply for post ID: {post_id}.")
 
-        logging.info(f"Checking posts for community: {community}")
-        response = requests.get(f'https://squabblr.co/api/s/{community}/posts?page=1&sort=new&')
-
-        if response.status_code != 200:
-            logging.warning(f"Failed to fetch posts for community: {community}")
-            continue
-
-        posts = response.json()["data"]
-        for post in posts:
-            post_id = post['id']
-
-            if post_id <= last_processed_id:
-                continue
-
-            url_meta = post.get("url_meta")
-            if not url_meta:
-                logging.warning(f"Post with ID: {post['hash_id']} lacks 'url_meta'. Skipping.")
-                continue
-
-            # Check post type and skip if it's an image
-            post_type = url_meta.get("type")
-            if post_type == "image":
-                logging.info(f"Skipping post with ID: {post['hash_id']} as it is an image.")
-                continue
-
-            url = url_meta.get("url")
-            post_domain = urlparse(url).netloc
-            if post_domain in domain_blacklist:
-                logging.info(f"Skipping post with URL: {url} as its domain is blacklisted.")
-                continue
-
-            logging.info(f"New post found with ID: {post_id} in community: {community}")
-            
-            content, title, meta_description = extract_content_with_bs(url)
-
-            if content:
-                content = content.replace(title, '').replace(meta_description, '')
-                summary, main_points = get_summary(content)
-                if summary and main_points:
-                    # r = post_reply(post['hash_id'], summary)
-                    final_reply = f"{canned_message_header}\n{summary}\n\n**Main Points**:\n" + "\n".join([f"- {point}" for point in main_points]) + f"\n{canned_message_footer}"
-                    r = post_reply(post['hash_id'], final_reply)
-
-                    if 'id' in r:
-                        logging.info(f"Successfully posted a reply for post ID: {post['hash_id']}")
-                        save_processed_id(community, post_id)
-                    else:
-                        logging.warning(f"Failed to post a reply for post ID: {post['hash_id']}.")
-
+    # Log the response status and content
+    logging.info(f"Response status from Squabblr API when posting reply: {resp.status_code}")
+    logging.info(f"Response content from Squabblr API when posting reply: {resp.text}")
+    
+    return resp.json()
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    get_latest_posts()
+    main()
