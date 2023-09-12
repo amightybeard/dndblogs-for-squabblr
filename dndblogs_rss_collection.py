@@ -37,7 +37,7 @@ def fetch_gist_data(gist_id, token):
 
 def update_tracker_gist(blog_name, new_date, gist_id, token):
     logging.info(f"Updating tracker gist for blog: {blog_name} with date: {new_date}")
-    current_data = fetch_gist_data(GIST_ID_DETAILS, GIST_TOKEN)
+    current_data = fetch_gist_data(GIST_ID_TRACKER, GIST_TOKEN)
     for entry in current_data:
         if entry["blog_name"] == blog_name:
             entry["last_fetched"] = new_date
