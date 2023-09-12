@@ -15,9 +15,21 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: '3.x'
+        
+    - name: Cache pip packages
+      uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+          
     - name: Install dependencies
       run: |
-        pip install -r requirements.txt
+        pip install -r includes/requirements.txt
+        pip install packaging --upgrade
+        pip install scikit-learn
+        
     - name: Populate Article Details Gist
       run: python dndblogs.py populate_article_details_gist
       env:
