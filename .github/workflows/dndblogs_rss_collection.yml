@@ -21,17 +21,17 @@ jobs:
       uses: actions/cache@v2
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements_tracker.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-
           
     - name: Install dependencies
       run: |
-        pip install -r includes/requirements.txt
+        pip install -r includes/requirements_tracker.txt
         pip install packaging --upgrade
         
     - name: Populate Article Details Gist
-      run: python dndblogs.py populate_article_details_gist
+      run: python dndblogs_rss_collection.py
       env:
         DNDBLOGS_GIST_TOKEN: ${{ secrets.DNDBLOGS_GIST_TOKEN }}
         SQUABBLR_TOKEN: ${{ secrets.DNDBLOGS_SQUABBLR_TOKEN }}
