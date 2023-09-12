@@ -87,7 +87,6 @@ def add_article_to_details_gist(url, title, date_published, gist_id, token):
     return response.status_code
 
 def fetch_rss_articles_since_date_xml(rss_url, since_date):
-    logging.info(f"Fetching articles from RSS: {rss_url} since date: {since_date}")
     response = requests.get(rss_url)
     root = ET.fromstring(response.content)
     namespace = {"ns": "http://purl.org/dc/elements/1.1/"}
@@ -96,8 +95,15 @@ def fetch_rss_articles_since_date_xml(rss_url, since_date):
         pub_date_text = item.find("pubDate").text if item.find("pubDate") is not None else item.find("ns:date", namespace).text
         try:
             pub_date = datetime.strptime(pub_date_text, "%a, %d %b %Y %H:%M:%S %Z")
-        except:
-            pub_date = datetime.strptime(pub_date_text, "%Y-%m-%dT%H:%M:%SZ")
+        except ValueError:
+            try:
+                pub_date = datetime.strptime(pub_date_text, "%Y-%m-%dT%H:%M:%SZ")
+            except ValueError:
+                try:
+                    pub_date = datetime.strptime(pub_date_text, "%a, %d %b %Y %H:%M:%S %z")
+                except ValueError:
+                    logging.error(f"Unable to parse date: {pub_date_text}")
+                    continue
         if pub_date.strftime("%Y-%m-%d") > since_date:
             articles.append({
                 "url": item.find("link").text,
