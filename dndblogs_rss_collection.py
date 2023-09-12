@@ -38,31 +38,25 @@ def fetch_gist_data(gist_id, token):
     gist_content = list(response.json()["files"].values())[0]["content"]
     return json.loads(gist_content)
 
-def update_tracker_gist(blog_name, new_date, gist_id, token):
-    logging.info(f"Updating tracker gist for blog: {blog_name} with date: {new_date}")
-    current_data = fetch_gist_data(GIST_ID_TRACKER, GIST_TOKEN)
-    for entry in current_data:
-        if entry["blog_name"] == blog_name:
-            entry["last_fetched"] = new_date
-            break
+def update_gist(gist_id, data, filename, token):
+    """Update the specified gist with the provided data."""
     headers = {
-        "Authorization": f"token {GIST_TOKEN}",
+        "Authorization": f"token {token}",
         "Accept": "application/vnd.github.v3+json"
     }
-    gist_url = f"https://api.github.com/gists/{GIST_ID_TRACKER}"
-    updated_content = json.dumps(current_data, indent=4)
-    data = {
+    gist_url = f"https://api.github.com/gists/{gist_id}"
+    updated_content = json.dumps(data, indent=4)
+    payload = {
         "files": {
-            "dndblogs-rss-tracker.json": {
+            filename: {
                 "content": updated_content
             }
         }
     }
-    response = requests.patch(f"https://api.github.com/gists/{GIST_ID_TRACKER}", headers=headers, json=data)
-    if response.status_code == 403:
-        logging.error(f"Error response in update_tracker_gist: {response.text}")
+    response = requests.patch(gist_url, headers=headers, json=payload)
     response.raise_for_status()
     return response.status_code
+
 
 def add_article_to_details_gist(url, title, date_published, gist_id, token):
     logging.info(f"Adding article with title: {title} and {url} to details gist")
@@ -128,8 +122,9 @@ def fetch_rss_articles_since_date_xml(rss_url, since_date):
 if __name__ == "__main__":
     logging.info("Script started.")
     
-    # Fetch the current tracker data
+    # 1. Fetch Data Once
     tracker_data = fetch_gist_data(GIST_ID_TRACKER, GIST_TOKEN)
+    details_data = fetch_gist_data(GIST_ID_DETAILS, GIST_TOKEN)
     
     for blog in tracker_data:
         blog_name = blog["blog_name"]
@@ -138,30 +133,37 @@ if __name__ == "__main__":
         
         logging.info(f"Processing articles for blog: {blog_name} since {last_fetched}")
         
-        # Fetch new articles since the last fetched date
+        # 2. Process RSS Feeds
         new_articles = fetch_rss_articles_since_date_xml(rss_url, last_fetched)
-
-        time.sleep(5)
         
         # If there are new articles, process them
         if new_articles:
             latest_date = last_fetched
-            
             for article in new_articles:
-                add_article_to_details_gist(article["url"], article["title"], article["date_published"], GIST_ID_DETAILS, GIST_TOKEN)
-
-                time.sleep(5)
+                # Append to in-memory details data
+                new_article = {
+                    "url": article["url"],
+                    "title": article["title"],
+                    "date_published": article["date_published"],
+                    "posted": False
+                }
+                details_data.append(new_article)
                 
                 # Update the latest date if the current article's date is more recent
                 if article["date_published"] > latest_date:
                     latest_date = article["date_published"]
             
-            # Update the tracker gist with the most recent date
-            update_tracker_gist(blog_name, latest_date, GIST_ID_TRACKER, GIST_TOKEN)
-
-            time.sleep(5)
+            # Update the in-memory tracker with the most recent date
+            for entry in tracker_data:
+                if entry["blog_name"] == blog_name:
+                    entry["last_fetched"] = latest_date
+                    break
         
         else:
             logging.info(f"No new articles found for blog: {blog_name} since {last_fetched}")
+    
+    # 3. Update Gists Once
+    update_gist(GIST_ID_TRACKER, tracker_data, FILE_NAME_TRACKER, GIST_TOKEN)
+    update_gist(GIST_ID_DETAILS, details_data, FILE_NAME_DETAILS, GIST_TOKEN)
     
     logging.info("Script execution completed.")
