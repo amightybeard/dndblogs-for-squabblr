@@ -70,7 +70,7 @@ def add_article_to_details_gist(url, title, date_published, gist_id, token):
     }
     current_data.append(new_article)
     headers = {
-        "Authorization": f"token {token}",
+        "Authorization": f"token {GIST_TOKEN}",
         "Accept": "application/vnd.github.v3+json"
     }
     gist_url = f"https://api.github.com/gists/{gist_id}"
