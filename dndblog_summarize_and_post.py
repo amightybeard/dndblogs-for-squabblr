@@ -10,6 +10,7 @@ from datetime import datetime
 import re
 from collections import Counter
 from sklearn.feature_extraction.text import TfidfVectorizer
+import xml.etree.ElementTree as ET
 
 # Initialize logging
 logging.basicConfig(level=logging.INFO)
