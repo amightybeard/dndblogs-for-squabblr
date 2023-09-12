@@ -21,5 +21,7 @@ jobs:
     - name: Populate Article Details Gist
       run: python dndblogs.py populate_article_details_gist
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SQUABBLR_TOKEN: ${{ secrets.SQUABBLR_TOKEN }}}
+        DNDBLOGS_GIST_TOKEN: ${{ secrets.DNDBLOGS_GIST_TOKEN }}
+        SQUABBLR_TOKEN: ${{ secrets.SQUABBLR_TOKEN }}
+        DNDBLOGS_GIST_TRACKER: ${{ secrets.DNDBLOGS_GIST_TRACKER }}
+        DNDBLOGS_GIST_DETAILS: ${{ secrets.DNDBLOGS_GIST_DETAILS }}
