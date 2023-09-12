@@ -3,6 +3,7 @@ import os
 import json
 import logging
 import io
+import time
 from datetime import datetime
 import xml.etree.ElementTree as ET
 
@@ -139,6 +140,8 @@ if __name__ == "__main__":
         
         # Fetch new articles since the last fetched date
         new_articles = fetch_rss_articles_since_date_xml(rss_url, last_fetched)
+
+        time.sleep(5)
         
         # If there are new articles, process them
         if new_articles:
@@ -146,12 +149,17 @@ if __name__ == "__main__":
             
             for article in new_articles:
                 add_article_to_details_gist(article["url"], article["title"], article["date_published"], GIST_ID_DETAILS, GIST_TOKEN)
+
+                time.sleep(5)
+                
                 # Update the latest date if the current article's date is more recent
                 if article["date_published"] > latest_date:
                     latest_date = article["date_published"]
             
             # Update the tracker gist with the most recent date
             update_tracker_gist(blog_name, latest_date, GIST_ID_TRACKER, GIST_TOKEN)
+
+            time.sleep(5)
         
         else:
             logging.info(f"No new articles found for blog: {blog_name} since {last_fetched}")
