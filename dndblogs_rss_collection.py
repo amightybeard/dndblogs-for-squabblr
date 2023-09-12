@@ -87,10 +87,17 @@ def add_article_to_details_gist(url, title, date_published, gist_id, token):
     return response.status_code
 
 def fetch_rss_articles_since_date_xml(rss_url, since_date):
+    def fetch_rss_articles_since_date_xml(rss_url, since_date):
     response = requests.get(rss_url)
-    root = ET.fromstring(response.content)
-    namespace = {"ns": "http://purl.org/dc/elements/1.1/"}
     articles = []
+    try:
+        root = ET.fromstring(response.content)
+    except ET.ParseError:
+        logging.error(f"Error parsing XML from RSS feed: {rss_url}")
+        logging.debug(f"Content of problematic RSS feed:\n{response.text}")
+        return articles
+
+    namespace = {"ns": "http://purl.org/dc/elements/1.1/"}
     for item in root.findall(".//item"):
         pub_date_text = item.find("pubDate").text if item.find("pubDate") is not None else item.find("ns:date", namespace).text
         try:
