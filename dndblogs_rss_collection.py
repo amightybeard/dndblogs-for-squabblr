@@ -24,6 +24,7 @@ HEADERS = {
 }
 
 def fetch_gist_data(gist_id, token):
+    logging.info(f"Fetching data from gist: {gist_id}")
     headers = {
         "Authorization": f"token {GIST_TOKEN}",
         "Accept": "application/vnd.github.v3+json"
@@ -35,6 +36,7 @@ def fetch_gist_data(gist_id, token):
     return json.loads(gist_content)
 
 def update_tracker_gist(blog_name, new_date, gist_id, token):
+    logging.info(f"Updating tracker gist for blog: {blog_name} with date: {new_date}")
     current_data = fetch_gist_data(gist_id, token)
     for entry in current_data:
         if entry["blog_name"] == blog_name:
@@ -58,6 +60,7 @@ def update_tracker_gist(blog_name, new_date, gist_id, token):
     return response.status_code
 
 def add_article_to_details_gist(url, title, date_published, gist_id, token):
+    logging.info(f"Adding article with title: {title} to details gist")
     current_data = fetch_gist_data(gist_id, token)
     new_article = {
         "url": url,
@@ -84,6 +87,7 @@ def add_article_to_details_gist(url, title, date_published, gist_id, token):
     return response.status_code
 
 def fetch_rss_articles_since_date_xml(rss_url, since_date):
+    logging.info(f"Fetching articles from RSS: {rss_url} since date: {since_date}")
     response = requests.get(rss_url)
     root = ET.fromstring(response.content)
     namespace = {"ns": "http://purl.org/dc/elements/1.1/"}
