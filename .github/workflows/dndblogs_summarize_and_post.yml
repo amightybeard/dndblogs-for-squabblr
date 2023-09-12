@@ -21,5 +21,7 @@ jobs:
     - name: Summarize and Post Article
       run: python dndblogs.py summarize_and_post_article
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SQUABBLR_TOKEN: ${{ secrets.SQUABBLR_TOKEN }}}
+        DNDBLOGS_GIST_TOKEN: ${{ secrets.DNDBLOGS_GIST_TOKEN }}
+        SQUABBLR_TOKEN: ${{ secrets.SQUABBLR_TOKEN }}
+        DNDBLOGS_GIST_TRACKER: ${{ secrets.DNDBLOGS_GIST_TRACKER }}
+        DNDBLOGS_GIST_DETAILS: ${{ secrets.DNDBLOGS_GIST_DETAILS }}
