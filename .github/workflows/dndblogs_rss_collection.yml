@@ -29,7 +29,6 @@ jobs:
       run: |
         pip install -r includes/requirements.txt
         pip install packaging --upgrade
-        pip install scikit-learn
         
     - name: Populate Article Details Gist
       run: python dndblogs.py populate_article_details_gist
