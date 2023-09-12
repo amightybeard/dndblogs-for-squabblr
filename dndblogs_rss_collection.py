@@ -86,7 +86,6 @@ def add_article_to_details_gist(url, title, date_published, gist_id, token):
     return response.status_code
 
 def fetch_rss_articles_since_date_xml(rss_url, since_date):
-    def fetch_rss_articles_since_date_xml(rss_url, since_date):
     response = requests.get(rss_url)
     articles = []
     try:
