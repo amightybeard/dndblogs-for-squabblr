@@ -24,7 +24,7 @@ HEADERS = {
 }
 
 def fetch_gist_data(gist_id, token):
-    logging.info(f"Fetching data from gist: {gist_id}")
+    logging.info(f"Fetching data from tracker gist: {gist_id}")
     headers = {
         "Authorization": f"token {GIST_TOKEN}",
         "Accept": "application/vnd.github.v3+json"
