@@ -22,6 +22,6 @@ jobs:
       run: python dndblogs.py populate_article_details_gist
       env:
         DNDBLOGS_GIST_TOKEN: ${{ secrets.DNDBLOGS_GIST_TOKEN }}
-        SQUABBLR_TOKEN: ${{ secrets.SQUABBLR_TOKEN }}
+        SQUABBLR_TOKEN: ${{ secrets.DNDBLOGS_SQUABBLR_TOKEN }}
         DNDBLOGS_GIST_TRACKER: ${{ secrets.DNDBLOGS_GIST_TRACKER }}
         DNDBLOGS_GIST_DETAILS: ${{ secrets.DNDBLOGS_GIST_DETAILS }}
