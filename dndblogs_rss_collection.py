@@ -50,7 +50,7 @@ def update_tracker_gist(blog_name, new_date, gist_id, token):
     updated_content = json.dumps(current_data, indent=4)
     data = {
         "files": {
-            "{FILE_NAME_TRACKER}": {
+            "dndblogs-rss-tracker.json": {
                 "content": updated_content
             }
         }
@@ -77,7 +77,7 @@ def add_article_to_details_gist(url, title, date_published, gist_id, token):
     updated_content = json.dumps(current_data, indent=4)
     data = {
         "files": {
-            "{FILE_NAME_DETAILS}": {
+            "dndblogs-article-details.json": {
                 "content": updated_content
             }
         }
