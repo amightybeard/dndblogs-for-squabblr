@@ -29,7 +29,6 @@ def fetch_gist_data(gist_id, token):
         "Authorization": f"token {GIST_TOKEN}",
         "Accept": "application/vnd.github.v3+json"
     }
-    gist_url = f"https://api.github.com/gists/{GIST_ID_TRACKER}"
     response = requests.get(gist_url, headers=headers)
     response.raise_for_status()
     gist_content = list(response.json()["files"].values())[0]["content"]
@@ -37,7 +36,7 @@ def fetch_gist_data(gist_id, token):
 
 def update_tracker_gist(blog_name, new_date, gist_id, token):
     logging.info(f"Updating tracker gist for blog: {blog_name} with date: {new_date}")
-    current_data = fetch_gist_data(gist_id, token)
+    current_data = fetch_gist_data(GIST_ID_DETAILS, GIST_TOKEN)
     for entry in current_data:
         if entry["blog_name"] == blog_name:
             entry["last_fetched"] = new_date
@@ -61,7 +60,7 @@ def update_tracker_gist(blog_name, new_date, gist_id, token):
 
 def add_article_to_details_gist(url, title, date_published, gist_id, token):
     logging.info(f"Adding article with title: {title} to details gist")
-    current_data = fetch_gist_data(gist_id, token)
+    current_data = fetch_gist_data(GIST_ID_DETAILS, GIST_TOKEN)
     new_article = {
         "url": url,
         "title": title,
@@ -140,7 +139,7 @@ if __name__ == "__main__":
             latest_date = last_fetched
             
             for article in new_articles:
-                add_article_to_details_gist(article["url"], article["title"], article["date_published"], GIST_ID_DETAILS, GIST_TOKEN)
+                add_article_to_details_gist(article["url"], article["title"], article["date_published"], GIST_URL_DETAILS, GIST_TOKEN)
                 # Update the latest date if the current article's date is more recent
                 if article["date_published"] > latest_date:
                     latest_date = article["date_published"]
