@@ -13,8 +13,11 @@ logging.basicConfig(level=logging.INFO)
 SQUABBLES_TOKEN = os.environ.get('DNDBLOGS_SQUABBLR_TOKEN')
 GIST_TOKEN =  os.environ.get('DNDBLOGS_GIST_TOKEN')
 GIST_ID_TRACKER = os.environ.get('DNDBLOGS_GIST_TRACKER')
+GIST_ID_DETAILS = os.environ.get('DNDBLOGS_GIST_DETAILS')
 FILE_NAME_TRACKER = 'dndblogs-rss-tracker.json'
+FILE_NAME_DETAILS = 'dndblogs-article-details.json'
 GIST_URL_TRACKER = f"https://gist.githubusercontent.com/amightybeard/{GIST_ID_TRACKER}/raw/{FILE_NAME_TRACKER}"
+GIST_URL_DETAILS = f"https://gist.githubusercontent.com/amightybeard/{GIST_ID_DETAILS}/raw/{FILE_NAME_DETAILS}"
 DATE_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
