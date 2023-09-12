@@ -29,6 +29,7 @@ def fetch_gist_data(gist_id, token):
         "Authorization": f"token {GIST_TOKEN}",
         "Accept": "application/vnd.github.v3+json"
     }
+    gist_url = f"https://api.github.com/gists/{GIST_ID_TRACKER}"
     response = requests.get(gist_url, headers=headers)
     response.raise_for_status()
     gist_content = list(response.json()["files"].values())[0]["content"]
