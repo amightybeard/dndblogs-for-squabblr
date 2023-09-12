@@ -1,4 +1,4 @@
-name: RSS Collection Workflow
+name: DNDBlogs RSS Collection Workflow
 
 on:
   # schedule:
@@ -30,7 +30,7 @@ jobs:
         pip install -r includes/requirements_tracker.txt
         pip install packaging --upgrade
         
-    - name: Populate Article Details Gist
+    - name: DNDBlogs RSS Collection for GIST
       run: python dndblogs_rss_collection.py
       env:
         DNDBLOGS_GIST_TOKEN: ${{ secrets.DNDBLOGS_GIST_TOKEN }}
