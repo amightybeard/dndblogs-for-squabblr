@@ -16,8 +16,9 @@ logging.basicConfig(level=logging.INFO)
 
 # Constants
 SQUABBLES_TOKEN = os.environ.get('DNDBLOGS_SQUABBLR_TOKEN')
-GIST_TOKEN =  os.environ.get('GITHUB_TOKEN')
-GIST_ID = os.environ.get('DNDBLOGS_GIST')
+GIST_TOKEN =  os.environ.get('DNDBLOGS_GIST_TOKEN')
+GIST_ID_TRACKER = os.environ.get('DNDBLOGS_GIST_TRACKER')
+GIST_ID_DETAILS = os.environ.get('DNDBLOGS_GIST_DETAILS')
 FILE_NAME = 'dndblogs.json'
 GIST_URL = f"https://gist.githubusercontent.com/amightybeard/{GIST_ID}/raw/{FILE_NAME}"
 DATE_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
