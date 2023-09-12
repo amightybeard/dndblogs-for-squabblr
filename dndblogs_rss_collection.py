@@ -107,4 +107,5 @@ def fetch_rss_articles_since_date_xml(rss_url, since_date):
     return articles
 
 if __name__ == "__main__":
+    logging.info("Script started.")
     pass
