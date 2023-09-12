@@ -133,7 +133,6 @@ def fetch_rss_articles_since_date_xml(rss_url, since_date):
     return articles
 
 # Functions related to summarizing and posting articles
-
 def summarize_and_post_article(details_gist_id, tracker_gist_id, token, squabblr_token):
     article = fetch_oldest_unposted_article(details_gist_id, token)
     if not article:
