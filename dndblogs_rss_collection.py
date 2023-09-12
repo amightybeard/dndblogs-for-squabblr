@@ -125,6 +125,11 @@ if __name__ == "__main__":
     # 1. Fetch Data Once
     tracker_data = fetch_gist_data(GIST_ID_TRACKER, GIST_TOKEN)
     details_data = fetch_gist_data(GIST_ID_DETAILS, GIST_TOKEN)
+
+    # Ensure details_data is a list; if not, reset it to an empty list
+    if not isinstance(details_data, list):
+        logging.warning("Details gist data format unexpected; resetting to an empty list.")
+        details_data = []
     
     for blog in tracker_data:
         blog_name = blog["blog_name"]
