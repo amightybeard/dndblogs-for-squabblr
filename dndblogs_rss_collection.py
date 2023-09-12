@@ -30,7 +30,7 @@ def fetch_gist_data(gist_id, token):
         "Accept": "application/vnd.github.v3+json"
     }
     gist_url = f"https://api.github.com/gists/{GIST_ID_TRACKER}"
-    response = requests.get(gist_url, headers=headers)
+    response = requests.get(f"https://api.github.com/gists/{GIST_ID_TRACKER}", headers=headers)
     response.raise_for_status()
     gist_content = list(response.json()["files"].values())[0]["content"]
     return json.loads(gist_content)
@@ -55,7 +55,7 @@ def update_tracker_gist(blog_name, new_date, gist_id, token):
             }
         }
     }
-    response = requests.patch(gist_url, headers=headers, json=data)
+    response = requests.patch(f"https://api.github.com/gists/{GIST_ID_TRACKER}", headers=headers, json=data)
     response.raise_for_status()
     return response.status_code
 
@@ -82,7 +82,7 @@ def add_article_to_details_gist(url, title, date_published, gist_id, token):
             }
         }
     }
-    response = requests.patch(gist_url, headers=headers, json=data)
+    response = requests.patch(f"https://api.github.com/gists/{GIST_ID_DETAILS}", headers=headers, json=data)
     response.raise_for_status()
     return response.status_code
 
