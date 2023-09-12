@@ -108,4 +108,34 @@ def fetch_rss_articles_since_date_xml(rss_url, since_date):
 
 if __name__ == "__main__":
     logging.info("Script started.")
-    pass
+    
+    # Fetch the current tracker data
+    tracker_data = fetch_gist_data(GIST_ID_TRACKER, GIST_TOKEN)
+    
+    for blog in tracker_data:
+        blog_name = blog["blog_name"]
+        rss_url = blog["rss_url"]
+        last_fetched = blog["last_fetched"]
+        
+        logging.info(f"Processing articles for blog: {blog_name} since {last_fetched}")
+        
+        # Fetch new articles since the last fetched date
+        new_articles = fetch_rss_articles_since_date_xml(rss_url, last_fetched)
+        
+        # If there are new articles, process them
+        if new_articles:
+            latest_date = last_fetched
+            
+            for article in new_articles:
+                add_article_to_details_gist(article["url"], article["title"], article["date_published"], GIST_ID_DETAILS, GIST_TOKEN)
+                # Update the latest date if the current article's date is more recent
+                if article["date_published"] > latest_date:
+                    latest_date = article["date_published"]
+            
+            # Update the tracker gist with the most recent date
+            update_tracker_gist(blog_name, latest_date, GIST_ID_TRACKER, GIST_TOKEN)
+        
+        else:
+            logging.info(f"No new articles found for blog: {blog_name} since {last_fetched}")
+    
+    logging.info("Script execution completed.")
