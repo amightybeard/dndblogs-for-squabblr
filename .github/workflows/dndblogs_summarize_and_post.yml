@@ -1,25 +1,37 @@
-name: Summarization and Posting Workflow
+name: RSS Collection Workflow
 
 on:
   # schedule:
-    # - cron: '0 * * * *'  # Run every hour
+  #  - cron: '0 */12 * * *'  # Run every 12 hours
   workflow_dispatch:  # This allows you to manually trigger the workflow from the GitHub Actions UI
 
 jobs:
-  summarize_and_post:
+  collect_rss:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.x'
+        python-version: 3.8
+        
+    - name: Cache pip packages
+      uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements_details.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+          
     - name: Install dependencies
       run: |
-        pip install -r requirements.txt
-    - name: Summarize and Post Article
-      run: python dndblogs.py summarize_and_post_article
+        pip install -r includes/requirements_details.txt
+        pip install packaging --upgrade
+        
+    - name: Populate Article Details Gist
+      run: python dndblogs_summarize_and_post.py
       env:
         DNDBLOGS_GIST_TOKEN: ${{ secrets.DNDBLOGS_GIST_TOKEN }}
         SQUABBLR_TOKEN: ${{ secrets.DNDBLOGS_SQUABBLR_TOKEN }}
