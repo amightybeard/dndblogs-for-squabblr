@@ -45,55 +45,6 @@ def fetch_gist_data(gist_id, token):
     gist_content = list(response.json()["files"].values())[0]["content"]
     return json.loads(gist_content)
 
-def update_tracker_gist(blog_name, new_date, gist_id, token):
-    current_data = fetch_gist_data(gist_id, token)
-    for entry in current_data:
-        if entry["blog_name"] == blog_name:
-            entry["last_fetched"] = new_date
-            break
-    headers = {
-        "Authorization": f"token {GIST_TOKEN}",
-        "Accept": "application/vnd.github.v3+json"
-    }
-    gist_url = f"https://api.github.com/gists/{GIST_ID_TRACKER}"
-    updated_content = json.dumps(current_data, indent=4)
-    data = {
-        "files": {
-            "{FILE_NAME_TRACKER}": {
-                "content": updated_content
-            }
-        }
-    }
-    response = requests.patch(gist_url, headers=headers, json=data)
-    response.raise_for_status()
-    return response.status_code
-
-def add_article_to_details_gist(url, title, date_published, gist_id, token):
-    current_data = fetch_gist_data(gist_id, token)
-    new_article = {
-        "url": url,
-        "title": title,
-        "date_published": date_published,
-        "posted": False
-    }
-    current_data.append(new_article)
-    headers = {
-        "Authorization": f"token {GIST_TOKEN}",
-        "Accept": "application/vnd.github.v3+json"
-    }
-    gist_url = f"https://api.github.com/gists/{GIST_ID_DETAILS}"
-    updated_content = json.dumps(current_data, indent=4)
-    data = {
-        "files": {
-            "{FILE_NAME_DETAILS}": {
-                "content": updated_content
-            }
-        }
-    }
-    response = requests.patch(gist_url, headers=headers, json=data)
-    response.raise_for_status()
-    return response.status_code
-
 def mark_article_as_posted(url, gist_id, token):
     current_data = fetch_gist_data(gist_id, token)
     for article in current_data:
@@ -116,25 +67,6 @@ def mark_article_as_posted(url, gist_id, token):
     response = requests.patch(gist_url, headers=headers, json=data)
     response.raise_for_status()
     return response.status_code
-
-def fetch_rss_articles_since_date_xml(rss_url, since_date):
-    response = requests.get(rss_url)
-    root = ET.fromstring(response.content)
-    namespace = {"ns": "http://purl.org/dc/elements/1.1/"}
-    articles = []
-    for item in root.findall(".//item"):
-        pub_date_text = item.find("pubDate").text if item.find("pubDate") is not None else item.find("ns:date", namespace).text
-        try:
-            pub_date = datetime.strptime(pub_date_text, "%a, %d %b %Y %H:%M:%S %Z")
-        except:
-            pub_date = datetime.strptime(pub_date_text, "%Y-%m-%dT%H:%M:%SZ")
-        if pub_date.strftime("%Y-%m-%d") > since_date:
-            articles.append({
-                "url": item.find("link").text,
-                "title": item.find("title").text,
-                "date_published": pub_date.strftime("%Y-%m-%d")
-            })
-    return articles
 
 # Functions related to summarizing and posting articles
 def summarize_and_post_article(details_gist_id, tracker_gist_id, token, squabblr_token):
