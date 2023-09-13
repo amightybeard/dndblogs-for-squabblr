@@ -25,12 +25,15 @@ HEADERS = {
 }
 
 def fetch_gist_data(gist_id, token):
+    logging.info(f"Fetching data from tracker gist: {gist_id}")
     headers = {
         "Authorization": f"token {token}",
         "Accept": "application/vnd.github.v3+json"
     }
-    gist_url = f"https://api.github.com/gists/{gist_id}"
+    gist_url = f"https://api.github.com/gists/{GIST_ID_TRACKER}"
     response = requests.get(gist_url, headers=headers)
+    if response.status_code == 403:
+        logging.error(f"Error response in fetch_gist_data: {response.text}")
     response.raise_for_status()
     gist_content = list(response.json()["files"].values())[0]["content"]
     return json.loads(gist_content)
