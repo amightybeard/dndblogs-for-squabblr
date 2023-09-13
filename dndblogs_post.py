@@ -19,7 +19,7 @@ def post_to_squabblr(title, content):
         'authorization': 'Bearer ' + SQUABBLR_TOKEN
     }
     response = requests.post('https://squabblr.co/api/new-post', data={
-        "community_name": "test",
+        "community_name": "dnd",
         "title": title,
         "content": content
     }, headers=headers)
@@ -79,7 +79,7 @@ if __name__ == "__main__":
     if article:
         single_article = article[0]
         title = single_article['title']
-        content = f"{single_article['url']}\n\n*Written by: {single_article['blog_name']} on {single_article['date_published']}.*\n\n-----\n\nI'm a bot. To send feedback or suggestions, post on /s/ModBot."
+        content = f"{single_article['url']}\n\n-----\n\n*Written by: {single_article['blog_name']} on {single_article['date_published']}.*\n\n-----\n\nI'm a bot. To send feedback or suggestions, post on /s/ModBot."
         post_to_squabblr(title, content)
         update_posted_status_for_article(single_article)
         logging.info(f"Article '{title}' posted and status updated.")
