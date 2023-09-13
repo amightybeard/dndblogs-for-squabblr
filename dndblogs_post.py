@@ -28,24 +28,38 @@ def post_to_squabblr(title, content):
     return response.json()
 
 def fetch_first_unposted_article():
-    data = requests.get(GIST_URL_DETAILS, GIST_TOKEN)
+    headers = {
+        "Authorization": f"token {GIST_TOKEN}",
+        "Accept": "application/vnd.github.v3+json"
+    }
+    response = requests.get(f"https://api.github.com/gists/{GIST_ID_DETAILS}", headers=headers)
+    response.raise_for_status()
+    data = json.loads(response.json()['files'][FILE_NAME_DETAILS]['content'])
     for article in data:
         if not article['posted']:
             return [article]
     return []
 
+
 def update_posted_status_for_article(article):
-    articles = fetch_first_unposted_article()  # Fetch all articles again
-    if articles:  # Check if the list is not empty
-        articles[0]['posted'] = True  # Update the first (and only) article in the list
-        update_article_details_gist(articles[0])
-        
+    # Fetch all articles to find the position of the article to update
     headers = {
         "Authorization": f"token {GIST_TOKEN}",
         "Accept": "application/vnd.github.v3+json"
     }
+    response = requests.get(f"https://api.github.com/gists/{GIST_ID_DETAILS}", headers=headers)
+    response.raise_for_status()
+    all_articles = json.loads(response.json()['files'][FILE_NAME_DETAILS]['content'])
+
+    # Find the article to update and set its 'posted' status to True
+    for art in all_articles:
+        if art['url'] == article['url']:
+            art['posted'] = True
+            break
+
+    # Update the gist with the modified list of articles
     gist_url = f"https://api.github.com/gists/{GIST_ID_DETAILS}"
-    updated_content = json.dumps(articles, indent=4)
+    updated_content = json.dumps(all_articles, indent=4)
     data = {
         "files": {
             FILE_NAME_DETAILS: {
