@@ -16,11 +16,10 @@ DATE_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 
 def post_to_squabblr(title, content):
     headers = {
-        "Authorization": f"Bearer {SQUABBLR_TOKEN}",
-        "Content-Type": "application/json"
+        'authorization': 'Bearer ' + SQUABBLR_TOKEN
     }
     response = requests.post('https://squabblr.co/api/new-post', data={
-        "community_name": "Test",
+        "community_name": "test",
         "title": title,
         "content": content
     }, headers=headers)
