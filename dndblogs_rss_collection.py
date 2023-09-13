@@ -25,67 +25,15 @@ HEADERS = {
 }
 
 def fetch_gist_data(gist_id, token):
-    logging.info(f"Fetching data from tracker gist: {gist_id}")
-    headers = {
-        "Authorization": f"token {GIST_TOKEN}",
-        "Accept": "application/vnd.github.v3+json"
-    }
-    gist_url = f"https://api.github.com/gists/{GIST_ID_TRACKER}"
-    response = requests.get(f"https://api.github.com/gists/{GIST_ID_TRACKER}", headers=headers)
-    if response.status_code == 403:
-        logging.error(f"Error response in fetch_gist_data: {response.text}")
-    response.raise_for_status()
-    gist_content = list(response.json()["files"].values())[0]["content"]
-    return json.loads(gist_content)
-
-def update_gist(gist_id, data, filename, token):
-    """Update the specified gist with the provided data."""
     headers = {
         "Authorization": f"token {token}",
         "Accept": "application/vnd.github.v3+json"
     }
     gist_url = f"https://api.github.com/gists/{gist_id}"
-    updated_content = json.dumps(data, indent=4)
-    payload = {
-        "files": {
-            filename: {
-                "content": updated_content
-            }
-        }
-    }
-    response = requests.patch(gist_url, headers=headers, json=payload)
+    response = requests.get(gist_url, headers=headers)
     response.raise_for_status()
-    return response.status_code
-
-
-def add_article_to_details_gist(url, title, date_published, gist_id, token):
-    logging.info(f"Adding article with title: {title} and {url} to details gist")
-    current_data = fetch_gist_data(gist_id, token)
-    new_article = {
-        "url": url,
-        "title": title,
-        "date_published": date_published,
-        "posted": False
-    }
-    current_data.append(new_article)
-    headers = {
-        "Authorization": f"token {GIST_TOKEN}",
-        "Accept": "application/vnd.github.v3+json"
-    }
-    gist_url = f"https://api.github.com/gists/{gist_id}"
-    updated_content = json.dumps(current_data, indent=4)
-    data = {
-        "files": {
-            "dndblogs-article-details.json": {
-                "content": updated_content
-            }
-        }
-    }
-    response = requests.patch(f"https://api.github.com/gists/{GIST_ID_DETAILS}", headers=headers, json=data)
-    if response.status_code == 403:
-        logging.error(f"Error response in add_article: {response.text}")
-    response.raise_for_status()
-    return response.status_code
+    gist_content = list(response.json()["files"].values())[0]["content"]
+    return json.loads(gist_content)
 
 def fetch_rss_articles_since_date_xml(rss_url, since_date):
     response = requests.get(rss_url)
@@ -115,9 +63,58 @@ def fetch_rss_articles_since_date_xml(rss_url, since_date):
             articles.append({
                 "url": item.find("link").text,
                 "title": item.find("title").text,
-                "date_published": pub_date.strftime("%Y-%m-%d")
+                "date_published": pub_date.strftime("%Y-%m-%d"),
+                "blog_name": blog_name
             })
     return articles
+    
+def update_gist(gist_id, data, filename, token):
+    """Update the specified gist with the provided data."""
+    headers = {
+        "Authorization": f"token {token}",
+        "Accept": "application/vnd.github.v3+json"
+    }
+    gist_url = f"https://api.github.com/gists/{gist_id}"
+    updated_content = json.dumps(data, indent=4)
+    payload = {
+        "files": {
+            filename: {
+                "content": updated_content
+            }
+        }
+    }
+    response = requests.patch(gist_url, headers=headers, json=payload)
+    response.raise_for_status()
+    return response.status_code
+
+def add_article_to_details_gist(url, title, date_published, gist_id, token):
+    logging.info(f"Adding article with title: {title} and {url} to details gist")
+    current_data = fetch_gist_data(gist_id, token)
+    new_article = {
+        "url": url,
+        "title": title,
+        "date_published": date_published,
+        "posted": False
+    }
+    current_data.append(new_article)
+    headers = {
+        "Authorization": f"token {GIST_TOKEN}",
+        "Accept": "application/vnd.github.v3+json"
+    }
+    gist_url = f"https://api.github.com/gists/{gist_id}"
+    updated_content = json.dumps(current_data, indent=4)
+    data = {
+        "files": {
+            "dndblogs-article-details.json": {
+                "content": updated_content
+            }
+        }
+    }
+    response = requests.patch(f"https://api.github.com/gists/{GIST_ID_DETAILS}", headers=headers, json=data)
+    if response.status_code == 403:
+        logging.error(f"Error response in add_article: {response.text}")
+    response.raise_for_status()
+    return response.status_code
 
 if __name__ == "__main__":
     logging.info("Script started.")
