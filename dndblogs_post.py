@@ -78,8 +78,8 @@ if __name__ == "__main__":
     article = fetch_first_unposted_article()
     if article:
         single_article = article[0]
-        title = f"{[Blog] {single_article['title']}}"
-        content = f"{[{single_article['title']}]({single_article['url']}) by {single_article['blog_name']}\n\n-----\n\nI'm a bot. To send feedback or suggestions, post on /s/ModBot."
+        title = f"[Blog] {single_article['title']}"
+        content = f"[{single_article['title']}]({single_article['url']}) by {single_article['blog_name']}\n\n-----\n\nI'm a bot. To send feedback or suggestions, post on /s/ModBot."
         post_to_squabblr(title, content)
         update_posted_status_for_article(single_article)
         logging.info(f"Article '{title}' posted and status updated.")
