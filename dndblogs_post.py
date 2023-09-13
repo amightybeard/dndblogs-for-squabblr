@@ -7,7 +7,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 # Constants
-SQUABBLES_TOKEN = os.environ.get('DNDBLOGS_SQUABBLR_TOKEN')
+SQUABBLR_TOKEN = os.environ.get('SQUABBLR_TOKEN')
 GIST_TOKEN =  os.environ.get('DNDBLOGS_GIST_TOKEN')
 GIST_ID_DETAILS = os.environ.get('DNDBLOGS_GIST_DETAILS')
 FILE_NAME_DETAILS = 'dndblogs-article-details.json'
@@ -16,7 +16,7 @@ DATE_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 
 def post_to_squabblr(title, content):
     headers = {
-        "Authorization": f"Bearer {SQUABBLES_TOKEN}",
+        "Authorization": f"Bearer {SQUABBLR_TOKEN}",
         "Content-Type": "application/json"
     }
     response = requests.post('https://squabblr.co/api/new-post', data={
