@@ -64,10 +64,10 @@ def fetch_rss_articles_since_date_xml(rss_url, since_date):
                     continue
         if pub_date.strftime("%Y-%m-%d") > since_date:
             articles.append({
+                "blog_name": blog_name,
                 "url": item.find("link").text,
                 "title": item.find("title").text,
-                "date_published": pub_date.strftime("%Y-%m-%d"),
-                "blog_name": blog_name
+                "date_published": pub_date.strftime("%Y-%m-%d")                
             })
     return articles
     
@@ -94,6 +94,7 @@ def add_article_to_details_gist(url, title, date_published, gist_id, token):
     logging.info(f"Adding article with title: {title} and {url} to details gist")
     current_data = fetch_gist_data(gist_id, token)
     new_article = {
+        "blog_name": blog_name,
         "url": url,
         "title": title,
         "date_published": date_published,
@@ -147,6 +148,7 @@ if __name__ == "__main__":
             for article in new_articles:
                 # Append to in-memory details data
                 new_article = {
+                    "blog_name": article["blog_name"],
                     "url": article["url"],
                     "title": article["title"],
                     "date_published": article["date_published"],
