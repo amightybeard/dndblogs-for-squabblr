@@ -6,7 +6,7 @@ on:
   workflow_dispatch:  # This allows you to manually trigger the workflow from the GitHub Actions UI
 
 jobs:
-  collect_rss:
+  post_to_squabblr:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
