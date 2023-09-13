@@ -1,4 +1,4 @@
-name: DNDBlogs Summarize and Post Workflow
+name: DNDBlogs Post Workflow
 
 on:
   # schedule:
@@ -29,10 +29,9 @@ jobs:
       run: |
         pip install -r includes/requirements_details.txt
         pip install packaging --upgrade
-        pip install scikit-learn
         
-    - name: DNDBlogs Summarize and Post
-      run: python dndblogs_summarize_and_post.py
+    - name: DNDBlogs Post
+      run: python dndblogs_post.py
       env:
         DNDBLOGS_GIST_TOKEN: ${{ secrets.DNDBLOGS_GIST_TOKEN }}
         SQUABBLR_TOKEN: ${{ secrets.DNDBLOGS_SQUABBLR_TOKEN }}
