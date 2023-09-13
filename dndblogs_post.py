@@ -28,20 +28,18 @@ def post_to_squabblr(title, content):
     return response.json()
 
 def fetch_first_unposted_article():
-    response = requests.get(GIST_URL_DETAILS)
-    response.raise_for_status()
-    articles = response.json()
-    for article in articles:
-        if not article.get('posted'):
-            return article
-    return None
+    data = requests.get(GIST_URL_DETAILS, GIST_TOKEN)
+    for article in data:
+        if not article['posted']:
+            return [article]
+    return []
 
 def update_posted_status_for_article(article):
     articles = fetch_first_unposted_article()  # Fetch all articles again
-    for art in articles:
-        if art['url'] == article['url']:
-            art['posted'] = True
-            break
+    if articles:  # Check if the list is not empty
+        articles[0]['posted'] = True  # Update the first (and only) article in the list
+        update_article_details_gist(articles[0])
+        
     headers = {
         "Authorization": f"token {GIST_TOKEN}",
         "Accept": "application/vnd.github.v3+json"
