@@ -19,11 +19,12 @@ def post_to_squabblr(title, content):
         "Authorization": f"Bearer {SQUABBLES_TOKEN}",
         "Content-Type": "application/json"
     }
-    data = {
+    response = requests.post('https://squabblr.co/api/new-post', data={
+        "community_name": "Test",
         "title": title,
         "content": content
-    }
-    response = requests.post("https://api.squabblr.co/posts", headers=headers, json=data)
+    }, headers=headers)
+    
     response.raise_for_status()
     return response.json()
 
