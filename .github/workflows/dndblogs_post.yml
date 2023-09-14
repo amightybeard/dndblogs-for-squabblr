@@ -2,7 +2,7 @@ name: DNDBlogs Post Workflow
 
 on:
   schedule:
-   - cron: '0 */2 * * *'  # Run every 12 hours
+   - cron: '15 */2 * * *'  # Run every 12 hours
   workflow_dispatch:  # This allows you to manually trigger the workflow from the GitHub Actions UI
 
 jobs:
