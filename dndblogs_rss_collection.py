@@ -5,7 +5,7 @@ import json
 import requests
 import feedparser
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -39,7 +39,7 @@ def parse_date(date_str):
 logging.info("Fetching tracker data...")
 response = requests.get(GIST_URL_TRACKER)
 rss_tracker_data = response.json()
-last_fetched_date = datetime.strptime(rss_tracker_data["last_fetched"], '%Y-%m-%d')
+last_fetched_date = datetime.strptime(rss_tracker_data["last_fetched"], '%Y-%m-%d').replace(tzinfo=timezone.utc)
 logging.info("Tracker data fetched successfully.")
 
 new_articles = []
