@@ -6,6 +6,7 @@ import requests
 import feedparser
 import logging
 from datetime import datetime, timezone
+from dateutil import parser
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -22,22 +23,13 @@ GIST_URL_DETAILS = f"https://gist.githubusercontent.com/amightybeard/{GIST_ID_DE
 
 def parse_date(date_str):
     """
-    Attempts to parse a date string using a list of potential formats.
+    Parse a date string using dateutil's parser.
+    If the datetime is offset-naive, default to UTC.
     """
-    formats = [
-        '%Y-%m-%d',
-        '%a, %d %b %Y %H:%M:%S %z'  # RFC 2822 format
-    ]
-    
-    for fmt in formats:
-        try:
-            dt = datetime.strptime(date_str, fmt)
-            if dt.tzinfo is None:  # If the datetime is offset-naive
-                dt = dt.replace(tzinfo=timezone.utc)  # Default to UTC
-            return dt
-        except ValueError:
-            continue
-    raise ValueError(f"Unable to parse date string {date_str} with provided formats.")
+    dt = parser.parse(date_str)
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)  # Default to UTC
+    return dt
 
 logging.info("Fetching tracker data...")
 response = requests.get(GIST_URL_TRACKER)
