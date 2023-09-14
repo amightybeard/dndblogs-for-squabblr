@@ -20,6 +20,22 @@ FILE_NAME_DETAILS = 'dndblogs-article-details.json'
 GIST_URL_TRACKER = f"https://gist.githubusercontent.com/amightybeard/{GIST_ID_TRACKER}/raw/{FILE_NAME_TRACKER}"
 GIST_URL_DETAILS = f"https://gist.githubusercontent.com/amightybeard/{GIST_ID_DETAILS}/raw/{FILE_NAME_DETAILS}"
 
+def parse_date(date_str):
+    """
+    Attempts to parse a date string using a list of potential formats.
+    """
+    formats = [
+        '%Y-%m-%d',
+        '%a, %d %b %Y %H:%M:%S %z'  # RFC 2822 format
+    ]
+    
+    for fmt in formats:
+        try:
+            return datetime.strptime(date_str, fmt)
+        except ValueError:
+            continue
+    raise ValueError(f"Unable to parse date string {date_str} with provided formats.")
+
 logging.info("Fetching tracker data...")
 response = requests.get(GIST_URL_TRACKER)
 rss_tracker_data = response.json()
@@ -33,8 +49,8 @@ logging.info("Starting RSS feed parsing...")
 for blog in rss_tracker_data["blogs"]:
     feed = feedparser.parse(blog["rss_url"])
     for entry in feed.entries:
-        article_date_str = entry.published.split("T")[0]  # Extract only the date portion
-        article_date = datetime.strptime(article_date_str, '%Y-%m-%d')
+        article_date_str = entry.published.split("T")[0] if "T" in entry.published else entry.published
+        article_date = parse_date(article_date_str)
         if article_date > last_fetched_date:
             new_articles.append({
                 "blog_name": blog["blog_name"],
