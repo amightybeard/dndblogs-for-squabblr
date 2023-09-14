@@ -1,9 +1,8 @@
-import requests
 import os
 import json
+import requests
 import logging
 
-# Initialize logging
 logging.basicConfig(level=logging.INFO)
 
 # Constants
@@ -12,9 +11,9 @@ GIST_TOKEN =  os.environ.get('DNDBLOGS_GIST_TOKEN')
 GIST_ID_DETAILS = os.environ.get('DNDBLOGS_GIST_DETAILS')
 FILE_NAME_DETAILS = 'dndblogs-article-details.json'
 GIST_URL_DETAILS = f"https://gist.githubusercontent.com/amightybeard/{GIST_ID_DETAILS}/raw/{FILE_NAME_DETAILS}"
-DATE_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 
 def post_to_squabblr(title, content):
+    logging.info(f"Posting article '{title}' to Squabblr.co...")
     headers = {
         'authorization': 'Bearer ' + SQUABBLR_TOKEN
     }
@@ -23,67 +22,45 @@ def post_to_squabblr(title, content):
         "title": title,
         "content": content
     }, headers=headers)
-    
-    response.raise_for_status()
+    logging.info(f"Article '{title}' posted successfully.")
     return response.json()
 
-def fetch_first_unposted_article():
-    headers = {
-        "Authorization": f"token {GIST_TOKEN}",
-        "Accept": "application/vnd.github.v3+json"
-    }
-    response = requests.get(f"https://api.github.com/gists/{GIST_ID_DETAILS}", headers=headers)
-    response.raise_for_status()
-    data = json.loads(response.json()['files'][FILE_NAME_DETAILS]['content'])
-    for article in data:
-        if not article['posted']:
-            return [article]
-    return []
+def main():
+    logging.info("Fetching articles data...")
+    response = requests.get(GIST_URL_DETAILS)
+    articles = response.json()
+    logging.info("Article data fetched successfully.")
 
+    # Find the first article that hasn't been posted
+    for article in articles:
+        if not article["posted"]:
+            # Prepare title and content
+            post_title = f"[Blog] {article['title']}"
+            post_content = f"Check out [{article['title']}]({article['url']}) by {article['blog_name']}\n\n-----\n\nI'm a bot. Post feedback, blog inclusion requests, and suggestions to /s/ModBot."
 
-def update_posted_status_for_article(article):
-    # Fetch all articles to find the position of the article to update
-    headers = {
-        "Authorization": f"token {GIST_TOKEN}",
-        "Accept": "application/vnd.github.v3+json"
-    }
-    response = requests.get(f"https://api.github.com/gists/{GIST_ID_DETAILS}", headers=headers)
-    response.raise_for_status()
-    all_articles = json.loads(response.json()['files'][FILE_NAME_DETAILS]['content'])
+            # Post to Squabblr.co
+            post_to_squabblr(post_title, post_content)
 
-    # Find the article to update and set its 'posted' status to True
-    for art in all_articles:
-        if art['url'] == article['url']:
-            art['posted'] = True
-            break
+            # Update the article's "posted" status
+            article["posted"] = True
 
-    # Update the gist with the modified list of articles
-    gist_url = f"https://api.github.com/gists/{GIST_ID_DETAILS}"
-    updated_content = json.dumps(all_articles, indent=4)
-    data = {
-        "files": {
-            FILE_NAME_DETAILS: {
-                "content": updated_content
+            logging.info(f"Updating dndblogs-article-details.json to mark '{article['title']}' as posted...")
+            # Update dndblogs-article-details.json gist with the updated article
+            headers = {
+                "Authorization": f"token {GIST_TOKEN}",
+                "Accept": "application/vnd.github.v3+json"
             }
-        }
-    }
-    response = requests.patch(gist_url, headers=headers, json=data)
-    response.raise_for_status()
-    return response.status_code
+            payload = {
+                "files": {
+                    FILE_NAME_DETAILS: {
+                        "content": json.dumps(articles)
+                    }
+                }
+            }
+            response = requests.patch(f"https://api.github.com/gists/{GIST_ID_DETAILS}", headers=headers, json=payload)
+            logging.info(f"'{article['title']}' marked as posted successfully.")
+            
+            break  # Exit the loop after posting one article
 
 if __name__ == "__main__":
-    logging.info("Script started.")
-    
-    # Fetch first unposted article
-    article = fetch_first_unposted_article()
-    if article:
-        single_article = article[0]
-        title = f"[Blog] {single_article['title']}"
-        content = f"[{single_article['title']}]({single_article['url']}) by {single_article['blog_name']}\n\n-----\n\nI'm a bot. To send feedback or suggestions, post on /s/ModBot."
-        post_to_squabblr(title, content)
-        update_posted_status_for_article(single_article)
-        logging.info(f"Article '{title}' posted and status updated.")
-    else:
-        logging.info("No unposted articles found.")
-    
-    logging.info("Script execution completed.")
+    main()
