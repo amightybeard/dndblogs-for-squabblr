@@ -38,7 +38,31 @@ def fetch_gist_data(gist_id, token):
     gist_content = list(response.json()["files"].values())[0]["content"]
     return json.loads(gist_content)
 
-def fetch_rss_articles_since_date_xml(rss_url, since_date):
+def fetch_last_fetched_date():
+    data = fetch_gist_data(GIST_URL_TRACKER)
+    return dateutil.parser.parse(data[0]['last_fetched'])
+
+def update_last_fetched_date(new_date):
+    data = fetch_gist_data(GIST_URL_TRACKER)
+    data[0]['last_fetched'] = new_date.isoformat()
+    
+    headers = {
+        "Authorization": f"token {GIST_TOKEN}",
+        "Accept": "application/vnd.github.v3+json"
+    }
+    gist_url = f"https://api.github.com/gists/{GIST_ID_TRACKER}"
+    updated_content = json.dumps(data, indent=4)
+    requests_data = {
+        "files": {
+            FILE_NAME_TRACKER: {
+                "content": updated_content
+            }
+        }
+    }
+    response = requests.patch(gist_url, headers=headers, json=requests_data)
+    response.raise_for_status()
+
+def fetch_rss_articles_since_date_xml(rss_url, since_date, blog_name):
     response = requests.get(rss_url)
     articles = []
     try:
@@ -90,41 +114,12 @@ def update_gist(gist_id, data, filename, token):
     response.raise_for_status()
     return response.status_code
 
-def add_article_to_details_gist(url, title, date_published, gist_id, token):
-    logging.info(f"Adding article with title: {title} and {url} to details gist")
-    current_data = fetch_gist_data(gist_id, token)
-    new_article = {
-        "blog_name": blog_name,
-        "url": url,
-        "title": title,
-        "date_published": date_published,
-        "posted": False
-    }
-    current_data.append(new_article)
-    headers = {
-        "Authorization": f"token {GIST_TOKEN}",
-        "Accept": "application/vnd.github.v3+json"
-    }
-    gist_url = f"https://api.github.com/gists/{gist_id}"
-    updated_content = json.dumps(current_data, indent=4)
-    data = {
-        "files": {
-            "dndblogs-article-details.json": {
-                "content": updated_content
-            }
-        }
-    }
-    response = requests.patch(f"https://api.github.com/gists/{GIST_ID_DETAILS}", headers=headers, json=data)
-    if response.status_code == 403:
-        logging.error(f"Error response in add_article: {response.text}")
-    response.raise_for_status()
-    return response.status_code
-
 if __name__ == "__main__":
     logging.info("Script started.")
     
     # 1. Fetch Data Once
     tracker_data = fetch_gist_data(GIST_ID_TRACKER, GIST_TOKEN)
+    last_fetched = fetch_last_fetched_date()
     details_data = fetch_gist_data(GIST_ID_DETAILS, GIST_TOKEN)
 
     # Ensure details_data is a list; if not, reset it to an empty list
@@ -132,45 +127,38 @@ if __name__ == "__main__":
         logging.warning("Details gist data format unexpected; resetting to an empty list.")
         details_data = []
     
-    for blog in tracker_data:
+    for blog in tracker_data["blogs"]:
         blog_name = blog["blog_name"]
         rss_url = blog["rss_url"]
-        last_fetched = blog["last_fetched"]
         
         logging.info(f"Processing articles for blog: {blog_name} since {last_fetched}")
         
         # 2. Process RSS Feeds
-        new_articles = fetch_rss_articles_since_date_xml(rss_url, last_fetched)
+        try:
+            new_articles = fetch_rss_articles_since_date_xml(rss_url, last_fetched, blog_name)
         
-        # If there are new articles, process them
-        if new_articles:
-            latest_date = last_fetched
-            for article in new_articles:
-                # Append to in-memory details data
-                new_article = {
-                    "blog_name": article["blog_name"],
-                    "url": article["url"],
-                    "title": article["title"],
-                    "date_published": article["date_published"],
-                    "posted": False
-                }
-                details_data.append(new_article)
+            # If there are new articles, process them
+            if new_articles:
+                for article in new_articles:
+                    # Append to in-memory details data
+                    new_article = {
+                        "blog_name": article["blog_name"],
+                        "url": article["url"],
+                        "title": article["title"],
+                        "date_published": article["date_published"],
+                        "posted": False
+                    }
+                    details_data.append(new_article)
+            else:
+                logging.info(f"No new articles found for blog: {blog_name} since {last_fetched}")
                 
-                # Update the latest date if the current article's date is more recent
-                if article["date_published"] > latest_date:
-                    latest_date = article["date_published"]
-            
-            # Update the in-memory tracker with the most recent date
-            for entry in tracker_data:
-                if entry["blog_name"] == blog_name:
-                    entry["last_fetched"] = latest_date
-                    break
-        
-        else:
-            logging.info(f"No new articles found for blog: {blog_name} since {last_fetched}")
+        except Exception as e:
+            logging.error(f"Error processing articles for blog: {blog_name}. Error: {e}")
     
     # 3. Update Gists Once
-    update_gist(GIST_ID_TRACKER, tracker_data, FILE_NAME_TRACKER, GIST_TOKEN)
     update_gist(GIST_ID_DETAILS, details_data, FILE_NAME_DETAILS, GIST_TOKEN)
     
+    # 4. Update the last fetched date to now
+    update_last_fetched_date(datetime.now().strftime('%Y-%m-%d'))
+
     logging.info("Script execution completed.")
