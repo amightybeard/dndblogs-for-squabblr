@@ -39,7 +39,7 @@ def fetch_gist_data(gist_id, token):
     return json.loads(gist_content)
 
 def fetch_last_fetched_date():
-    data = fetch_gist_data(GIST_URL_TRACKER)
+    data = fetch_gist_data(GIST_URL_TRACKER, GIST_TOKEN)
     return dateutil.parser.parse(data[0]['last_fetched'])
 
 def update_last_fetched_date(new_date):
