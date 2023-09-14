@@ -50,7 +50,8 @@ for blog in rss_tracker_data["blogs"]:
     feed = feedparser.parse(blog["rss_url"])
     for entry in feed.entries:
         article_date_str = entry.published.split("T")[0] if "T" in entry.published else entry.published
-        article_date = parse_date(article_date_str)
+        article_date = parse_date(article_date_str).replace(tzinfo=None)
+
         if article_date > last_fetched_date:
             new_articles.append({
                 "blog_name": blog["blog_name"],
