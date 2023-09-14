@@ -31,7 +31,10 @@ def parse_date(date_str):
     
     for fmt in formats:
         try:
-            return datetime.strptime(date_str, fmt)
+            dt = datetime.strptime(date_str, fmt)
+            if dt.tzinfo is None:  # If the datetime is offset-naive
+                dt = dt.replace(tzinfo=timezone.utc)  # Default to UTC
+            return dt
         except ValueError:
             continue
     raise ValueError(f"Unable to parse date string {date_str} with provided formats.")
@@ -50,7 +53,7 @@ for blog in rss_tracker_data["blogs"]:
     feed = feedparser.parse(blog["rss_url"])
     for entry in feed.entries:
         article_date_str = entry.published.split("T")[0] if "T" in entry.published else entry.published
-        article_date = parse_date(article_date_str).replace(tzinfo=None)
+        article_date = parse_date(article_date_str)
 
         if article_date_str:
             article_date = parse_date(article_date_str)
