@@ -5,6 +5,7 @@ import logging
 import io
 import time
 from datetime import datetime
+import dateutil.parser
 import xml.etree.ElementTree as ET
 
 # Initialize logging
