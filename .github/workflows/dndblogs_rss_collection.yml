@@ -20,6 +20,7 @@ jobs:
     - name: Install dependencies
       run: |
         pip install feedparser requests
+        pip install feedparser requests python-dateutil
 
     - name: Run RSS collection script
       env:
