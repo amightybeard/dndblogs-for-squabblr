@@ -33,7 +33,8 @@ logging.info("Starting RSS feed parsing...")
 for blog in rss_tracker_data["blogs"]:
     feed = feedparser.parse(blog["rss_url"])
     for entry in feed.entries:
-        article_date = datetime.strptime(entry.published, '%Y-%m-%d')
+        article_date_str = entry.published.split("T")[0]  # Extract only the date portion
+        article_date = datetime.strptime(article_date_str, '%Y-%m-%d')
         if article_date > last_fetched_date:
             new_articles.append({
                 "blog_name": blog["blog_name"],
