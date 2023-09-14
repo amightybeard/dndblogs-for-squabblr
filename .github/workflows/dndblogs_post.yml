@@ -6,31 +6,23 @@ on:
   workflow_dispatch:  # This allows you to manually trigger the workflow from the GitHub Actions UI
 
 jobs:
-  post_to_squabblr:
+  post_article:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout code
+    - name: Checkout repository
       uses: actions/checkout@v2
-
-    - name: Set up Python
+      
+    - name: Set up Python 3.8
       uses: actions/setup-python@v2
       with:
         python-version: 3.8
-        
-    - name: Cache pip packages
-      uses: actions/cache@v2
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements_details.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
-          
+
     - name: Install dependencies
       run: |
-        pip install -r includes/requirements_details.txt
-        pip install packaging --upgrade
-        
-    - name: DNDBlogs Post
+        python -m pip install --upgrade pip
+        pip install feedparser requests python-dateutil
+
+    - name: Run dndblogs_post.py script
       run: python dndblogs_post.py
       env:
         DNDBLOGS_GIST_TOKEN: ${{ secrets.DNDBLOGS_GIST_TOKEN }}
