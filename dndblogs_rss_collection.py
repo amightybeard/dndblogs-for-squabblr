@@ -52,6 +52,11 @@ for blog in rss_tracker_data["blogs"]:
         article_date_str = entry.published.split("T")[0] if "T" in entry.published else entry.published
         article_date = parse_date(article_date_str).replace(tzinfo=None)
 
+        if article_date_str:
+            article_date = parse_date(article_date_str)
+        else:
+            continue  # Skip this entry and move to the next
+
         if article_date > last_fetched_date:
             new_articles.append({
                 "blog_name": blog["blog_name"],
