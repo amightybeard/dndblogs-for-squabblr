@@ -3,7 +3,7 @@ name: DND Blogs RSS Collection
 on:
   # schedule:
   #  - cron: '0 0 * * *'  # Run every 12 hours
-  workflow_dispatch:  # This allows you to manually trigger the workflow from the GitHub Actions UI
+  workflow_dispatch:  # Manually trigger the workflow
 
 jobs:
   collect_rss:
