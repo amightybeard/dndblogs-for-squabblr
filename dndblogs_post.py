@@ -53,7 +53,7 @@ def main():
             payload = {
                 "files": {
                     FILE_NAME_DETAILS: {
-                        "content": json.dumps(articles)
+                        "content": json.dumps(articles, indent=4)
                     }
                 }
             }
