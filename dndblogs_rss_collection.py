@@ -78,7 +78,7 @@ logging.info("Updating dndblogs-article-details.json with new articles...")
 payload = {
     "files": {
         FILE_NAME_DETAILS: {
-            "content": json.dumps(updated_articles)
+            "content": json.dumps(updated_articles, indent=4)
         }
     }
 }
