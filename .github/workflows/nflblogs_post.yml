@@ -1,0 +1,31 @@
+name: NFLBlogs Post Workflow
+
+on:
+  # schedule:
+  # - cron: '15 */3 * * *'  # Run every 12 hours
+  workflow_dispatch:  # This allows you to manually trigger the workflow from the GitHub Actions UI
+
+jobs:
+  post_article:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install feedparser requests python-dateutil
+
+    - name: Run nflblogs_post.py script
+      run: python nflblogs_post.py
+      env:
+        NFLBLOGS_GIST_TOKEN: ${{ secrets.DNDBLOGS_GIST_TOKEN }}
+        SQUABBLR_TOKEN: ${{ secrets.NFLBLOGS_SQUABBLR_TOKEN }}
+        NFLBLOGS_GIST_TRACKER: ${{ secrets.NFLBLOGS_GIST_TRACKER }}
+        NFLBLOGS_GIST_DETAILS: ${{ secrets.NFLBLOGS_GIST_DETAILS }}
