@@ -1,4 +1,4 @@
-# dndblogs_rss_collection.py
+# nflblogs_rss_collection.py
 
 import os
 import json
@@ -73,8 +73,8 @@ logging.info("Existing articles fetched successfully.")
 
 updated_articles = existing_articles + new_articles
 
-# Update dndblogs-article-details.json gist with the new articles
-logging.info("Updating dndblogs-article-details.json with new articles...")
+# Update nflblogs-article-details.json gist with the new articles
+logging.info("Updating nflblogs-article-details.json with new articles...")
 payload = {
     "files": {
         FILE_NAME_DETAILS: {
@@ -83,10 +83,10 @@ payload = {
     }
 }
 response = requests.patch(f"https://api.github.com/gists/{GIST_ID_DETAILS}", headers=headers, json=payload)
-logging.info("dndblogs-article-details.json updated successfully.")
+logging.info("nflblogs-article-details.json updated successfully.")
 
 # Update the last fetched date
-logging.info("Updating last fetched date in dndblogs-rss-tracker.json...")
+logging.info("Updating last fetched date in nflblogs-rss-tracker.json...")
 rss_tracker_data["last_fetched"] = datetime.now().strftime('%Y-%m-%d')
 payload = {
     "files": {
