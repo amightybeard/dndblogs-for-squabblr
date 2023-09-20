@@ -33,6 +33,7 @@ def parse_date(date_str):
 
 logging.info("Fetching tracker data...")
 response = requests.get(GIST_URL_TRACKER)
+logging.info(f"Raw Response: {response.text}")
 rss_tracker_data = response.json()
 last_fetched_date = datetime.strptime(rss_tracker_data["last_fetched"], '%Y-%m-%d').replace(tzinfo=timezone.utc)
 logging.info("Tracker data fetched successfully.")
