@@ -6,8 +6,8 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 # Constants
-SQUABBLR_TOKEN = os.environ.get('DNDBLOGS_SQUABBLR_TOKEN')
-GIST_TOKEN = os.environ.get('NFLBLOGS_GIST_TOKEN')
+SQUABBLR_TOKEN = os.environ.get('SQUABBLR_TOKEN')
+GIST_TOKEN = os.environ.get('DNDBLOGS_GIST_TOKEN')
 GIST_ID_DETAILS = os.environ.get('NFLBLOGS_GIST_DETAILS')
 FILE_NAME_DETAILS = 'nflblogs-article-details.json'
 GIST_URL_DETAILS = f"https://gist.githubusercontent.com/amightybeard/{GIST_ID_DETAILS}/raw/{FILE_NAME_DETAILS}"
