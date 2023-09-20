@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO)
 
 # Constants
 SQUABBLES_TOKEN = os.environ.get('NFLBLOGS_SQUABBLR_TOKEN')
-GIST_TOKEN = os.environ.get('DNDBLOGS_GIST_TOKEN')
+GIST_TOKEN = os.environ.get('NFLBLOGS_GIST_TOKEN')
 GIST_ID_TRACKER = os.environ.get('NFLBLOGS_GIST_TRACKER')
 GIST_ID_DETAILS = os.environ.get('NFLBLOGS_GIST_DETAILS')
 FILE_NAME_TRACKER = 'NFLblogs-rss-tracker.json'
