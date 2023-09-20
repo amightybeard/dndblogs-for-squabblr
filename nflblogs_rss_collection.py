@@ -16,8 +16,8 @@ SQUABBLES_TOKEN = os.environ.get('NFLBLOGS_SQUABBLR_TOKEN')
 GIST_TOKEN = os.environ.get('NFLBLOGS_GIST_TOKEN')
 GIST_ID_TRACKER = os.environ.get('NFLBLOGS_GIST_TRACKER')
 GIST_ID_DETAILS = os.environ.get('NFLBLOGS_GIST_DETAILS')
-FILE_NAME_TRACKER = 'NFLblogs-rss-tracker.json'
-FILE_NAME_DETAILS = 'NFLblogs-article-details.json'
+FILE_NAME_TRACKER = 'nflblogs-rss-tracker.json'
+FILE_NAME_DETAILS = 'nflblogs-article-details.json'
 GIST_URL_TRACKER = f"https://gist.githubusercontent.com/amightybeard/{GIST_ID_TRACKER}/raw/{FILE_NAME_TRACKER}"
 GIST_URL_DETAILS = f"https://gist.githubusercontent.com/amightybeard/{GIST_ID_DETAILS}/raw/{FILE_NAME_DETAILS}"
 
