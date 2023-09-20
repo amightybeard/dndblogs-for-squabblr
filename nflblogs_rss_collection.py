@@ -92,7 +92,7 @@ rss_tracker_data["last_fetched"] = datetime.now().strftime('%Y-%m-%d')
 payload = {
     "files": {
         FILE_NAME_TRACKER: {
-            "content": json.dumps(rss_tracker_data)
+            "content": json.dumps(rss_tracker_data, indent=4)
         }
     }
 }
