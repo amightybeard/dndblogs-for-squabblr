@@ -6,6 +6,7 @@ import requests
 import feedparser
 import logging
 import re
+import html
 from datetime import datetime, timezone
 from dateutil import parser
 
