@@ -22,16 +22,24 @@ FILE_NAME_DETAILS = 'dndblogs-article-details.json'
 GIST_URL_TRACKER = f"https://gist.githubusercontent.com/amightybeard/{GIST_ID_TRACKER}/raw/{FILE_NAME_TRACKER}"
 GIST_URL_DETAILS = f"https://gist.githubusercontent.com/amightybeard/{GIST_ID_DETAILS}/raw/{FILE_NAME_DETAILS}"
 
-def parse_date(date_str):
+def parse_date_to_datetime(date_str):
+    """
+    Parse a date string using dateutil's parser.
+    If the datetime is offset-naive, default to UTC.
+    Returns a datetime object.
+    """
+    dt = parser.parse(date_str)
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)  # Default to UTC
+    return dt
+
+def parse_date_to_iso(date_str):
     """
     Parse a date string using dateutil's parser.
     If the datetime is offset-naive, default to UTC.
     Returns date in ISO format.
     """
-    dt = parser.parse(date_str)
-    if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=timezone.utc)  # Default to UTC
-    return dt.isoformat()
+    return parse_date_to_datetime(date_str).isoformat()
 
 logging.info("Fetching tracker data...")
 response = requests.get(GIST_URL_TRACKER)
@@ -49,17 +57,16 @@ for blog in rss_tracker_data["blogs"]:
         article_date_str = entry.published.split("T")[0] if "T" in entry.published else entry.published
         
         if article_date_str:
-            article_date = parse_date(article_date_str)
+            article_date = parse_date_to_datetime(article_date_str)
         else:
             continue  # Skip this entry and move to the next
-        print(type(article_date), type(last_fetched_date))
         if article_date > last_fetched_date:
             new_articles.append({
                 "blog_name": blog["blog_name"],
                 "url": entry.link,
                 "title": entry.title,
                 "description": re.sub('<[^<]+?>', '', entry.get("description", "")),
-                "date_published": entry.published,
+                "date_published": parse_date_to_iso(article_date_str),
                 "posted": False
             })
 logging.info(f"RSS feed parsing completed. Found {len(new_articles)} new articles.")
