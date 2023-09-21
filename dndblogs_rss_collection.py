@@ -61,11 +61,17 @@ for blog in rss_tracker_data["blogs"]:
         else:
             continue  # Skip this entry and move to the next
         if article_date > last_fetched_date:
+            description_cleaned = re.sub('<[^<]+?>', '', entry.get("description", ""))  # Remove HTML tags
+            description_cleaned = html.unescape(description_cleaned)  # Convert HTML entities to their respective characters
+            description_cleaned = description_cleaned.replace("&nbsp;", " ")  # Replace non-breaking spaces with regular spaces
+            description_cleaned = re.sub(' +', ' ', description_cleaned)  # Replace multiple spaces with a single space
+            description_cleaned = description_cleaned.strip()  # Remove leading and trailing whitespaces
+
             new_articles.append({
                 "blog_name": blog["blog_name"],
                 "url": entry.link,
                 "title": entry.title,
-                "description": re.sub('<[^<]+?>', '', entry.get("description", "")),
+                "description": description_cleaned,
                 "date_published": parse_date_to_iso(article_date_str),
                 "posted": False
             })
