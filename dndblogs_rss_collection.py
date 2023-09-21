@@ -25,11 +25,12 @@ def parse_date(date_str):
     """
     Parse a date string using dateutil's parser.
     If the datetime is offset-naive, default to UTC.
+    Returns date in ISO format.
     """
     dt = parser.parse(date_str)
     if dt.tzinfo is None:
         dt = dt.replace(tzinfo=timezone.utc)  # Default to UTC
-    return dt
+    return dt.isoformat()
 
 logging.info("Fetching tracker data...")
 response = requests.get(GIST_URL_TRACKER)
@@ -73,6 +74,9 @@ logging.info("Existing articles fetched successfully.")
 
 updated_articles = existing_articles + new_articles
 
+# Sort articles by date_published in ascending order
+updated_articles.sort(key=lambda x: x["date_published"])
+
 # Update dndblogs-article-details.json gist with the new articles
 logging.info("Updating dndblogs-article-details.json with new articles...")
 payload = {
@@ -91,7 +95,7 @@ rss_tracker_data["last_fetched"] = datetime.now().strftime('%Y-%m-%d')
 payload = {
     "files": {
         FILE_NAME_TRACKER: {
-            "content": json.dumps(rss_tracker_data)
+            "content": json.dumps(rss_tracker_data, indent=4)
         }
     }
 }
