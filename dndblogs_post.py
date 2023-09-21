@@ -37,7 +37,7 @@ def main():
             # Prepare title and content
             post_title = f"[Blog] {article['title']}"
             post_description = article.get("description", "").replace("\n", " ").replace("\r", "").strip()  # Cleaning up newlines and spaces
-            post_content = f"""By [{article['blog_name']}]({article['url']})
+            post_content = f"""[Read full post by {article['blog_name']}]({article['url']})
 
 -----
 
