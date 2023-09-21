@@ -5,6 +5,7 @@ import json
 import requests
 import feedparser
 import logging
+import re
 from datetime import datetime, timezone
 from dateutil import parser
 
@@ -57,6 +58,7 @@ for blog in rss_tracker_data["blogs"]:
                 "blog_name": blog["blog_name"],
                 "url": entry.link,
                 "title": entry.title,
+                "description": re.sub('<[^<]+?>', '', entry.get("description", "")),
                 "date_published": entry.published,
                 "posted": False
             })
