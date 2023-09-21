@@ -35,9 +35,16 @@ def main():
     for article in articles:
         if not article["posted"]:
             # Prepare title and content
-            post_title = f"[Blog] {article['title']}"
-            post_content = f"Check out [{article['title']}]({article['url']}) by {article['blog_name']}\n\n-----\n\nI'm a bot. Post feedback, blog inclusion requests, and suggestions to /s/ModBot."
+            post_title = f"[{article['blog_name']}] {article['title']}"
+            post_description = article.get("description", "").replace("\n", " ").replace("\r", "").strip()  # Cleaning up newlines and spaces
+            post_content = f"""#### [{post_title}]({article['url']})
+By {article['blog_name']}
 
+> {post_description}
+
+-----
+ 
+I'm a bot. Post feedback, blog inclusion requests, and suggestions to /s/ModBot in [the announcement post](https://squabblr.co/u/modbot/post/8n061My7wB)."""
             # Post to Squabblr.co
             post_to_squabblr(post_title, post_content)
 
