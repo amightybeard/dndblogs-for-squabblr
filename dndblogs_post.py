@@ -40,7 +40,9 @@ def main():
             post_content = f"""#### [{post_title}]({article['url']})
 By {article['blog_name']}
 
-> {post_description}
+-----
+
+{post_description}
 
 -----
  
