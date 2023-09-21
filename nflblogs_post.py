@@ -49,7 +49,7 @@ By {article['blog_name']}
 
 -----
  
-I'm a bot. Post feedback, blog inclusion requests, and suggestions to /s/ModBot in [the announcement post](https://squabblr.co/u/modbot/post/G8wA45APxz)."""
+I'm a bot. Post feedback, blog inclusion requests, and suggestions to /s/ModBot. [Read the announcement post](https://squabblr.co/u/modbot/post/G8wA45APxz)."""
 
                 # Post to Squabblr.co
                 post_response = post_to_squabblr(post_title, post_content)
