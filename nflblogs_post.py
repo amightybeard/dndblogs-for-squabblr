@@ -44,8 +44,8 @@ def main():
             # Update the article's "posted" status
             article["posted"] = True
 
-            logging.info(f"Updating dndblogs-article-details.json to mark '{article['title']}' as posted...")
-            # Update dndblogs-article-details.json gist with the updated article
+            logging.info(f"Updating nflblogs-article-details.json to mark '{article['title']}' as posted...")
+            # Update nflblogs-article-details.json gist with the updated article
             headers = {
                 "Authorization": f"token {GIST_TOKEN}",
                 "Accept": "application/vnd.github.v3+json"
