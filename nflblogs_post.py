@@ -42,10 +42,11 @@ def main():
                 # Prepare title and content
                 post_title = f"[{article['blog_name']}] {article['title']}"
                 post_description = article.get("description", "").replace("\n", " ").replace("\r", "").strip()  # Cleaning up newlines and spaces
-                post_content = f"""#### [{post_title}]({article['url']})
-By {article['blog_name']}
+                post_content = f"""By [{article['blog_name']}]({article['url']})
 
-> {post_description}
+-----
+
+{post_description}
 
 -----
  
