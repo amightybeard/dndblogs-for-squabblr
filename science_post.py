@@ -37,9 +37,7 @@ def main():
             # Prepare title and content
             post_title = f"{article['title']}"
             post_description = article.get("description", "").replace("\n", " ").replace("\r", "").strip()  # Cleaning up newlines and spaces
-            post_content = f"""{article['url']}
-
-{post_description}"""
+            post_content = f"""{article['url']}"""
             # Post to Squabblr.co
             post_to_squabblr(post_title, post_content)
 
