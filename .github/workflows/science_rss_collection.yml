@@ -1,0 +1,29 @@
+name: Science RSS Collection
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Run every 12 hours
+  workflow_dispatch:  # Manually trigger the workflow
+
+jobs:
+  collect_rss:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'
+
+    - name: Install dependencies
+      run: |
+        pip install feedparser requests
+        pip install feedparser requests python-dateutil
+
+    - name: Run RSS collection script
+      env:
+        DNDBLOGS_GIST_TOKEN: ${{ secrets.DNDBLOGS_GIST_TOKEN }}
+        DJ_SQUABBLR_TOKEN: ${{ secrets.DJ_SQUABBLR_TOKEN }}
+      run: python science_rss_collection.py
