@@ -8,8 +8,8 @@ logging.basicConfig(level=logging.INFO)
 # Constants
 SQUABBLR_TOKEN = os.environ.get('DJ_SQUABBLR_TOKEN')
 GIST_TOKEN =  os.environ.get('DNDBLOGS_GIST_TOKEN')
-GIST_ID_DETAILS = 'b20b9a2e4d53a0db1be222f66dd266f7'
-FILE_NAME_DETAILS = 'science-rss-tracker.json'
+GIST_ID_DETAILS = 'f479054c7adb2c01edf69e03c30cce64'
+FILE_NAME_DETAILS = 'science-article-details.json'
 GIST_URL_DETAILS = f"https://gist.githubusercontent.com/amightybeard/{GIST_ID_DETAILS}/raw/{FILE_NAME_DETAILS}"
 
 def post_to_squabblr(title, content):
@@ -35,7 +35,7 @@ def main():
     for article in articles:
         if not article["posted"]:
             # Prepare title and content
-            post_title = f"[Blog] {article['title']}"
+            post_title = f"{article['title']}"
             post_description = article.get("description", "").replace("\n", " ").replace("\r", "").strip()  # Cleaning up newlines and spaces
             post_content = f"""{article['url']}
 
