@@ -67,6 +67,7 @@ for blog in rss_tracker_data["blogs"]:
             
             # Special handling for ProPublica.org descriptions
             if blog["blog_name"] == "ProPublica.org":
+                print(description_raw)  # Add this line for debugging
                 soup = BeautifulSoup(description_raw, 'html.parser')
                 description_cleaned = ' '.join([p.text for p in soup.find_all('p', {'data-pp-blocktype': 'copy'})])
             else:
