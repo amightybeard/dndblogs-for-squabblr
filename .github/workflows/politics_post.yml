@@ -1,0 +1,29 @@
+name: Politics Post Workflow
+
+on:
+  schedule:
+   - cron: '28 */2 * * *'  # Run every 12 hours
+  workflow_dispatch:  # This allows you to manually trigger the workflow from the GitHub Actions UI
+
+jobs:
+  post_article:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install feedparser requests python-dateutil
+
+    - name: Run politics_post.py script
+      run: python politics_post.py
+      env:
+        DNDBLOGS_GIST_TOKEN: ${{ secrets.DNDBLOGS_GIST_TOKEN }}
+        POL_SQUABBLR_TOKEN: ${{ secrets.POL_SQUABBLR_TOKEN }}
