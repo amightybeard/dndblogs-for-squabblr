@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 import json
 import os
 from urllib.parse import urlparse, urlunparse
+from datetime import datetime
 
 # Constants
 GIST_TOKEN = os.environ.get('POL_GIST_TOKEN')
@@ -28,6 +29,10 @@ def parse_rss_item(item, feed_type):
     title = item.find('title').text
     link = item.find('link').text
     description = item.find('description').text
+
+    # Extract and convert pubDate
+    pub_date_str = item.find('pubDate').text
+    pub_date = datetime.strptime(pub_date_str, '%a, %d %b %Y %H:%M:%S %z')
     
     # Parse the URL to remove the query parameters
     parsed_url = urlparse(item.find('link').text)
@@ -48,10 +53,34 @@ def parse_rss_item(item, feed_type):
         'bill_overview': bill_overview,
         'bill_text': bill_text,  # This will now retain the cleaned URL
         'bill_summary': bill_summary,
+        'pub_date': pub_date,
         'posted': False,
         'type': feed_type
     }
 
+def process_all_rss_items(rss_items, feed_type):
+    all_items = [parse_rss_item(item, feed_type) for item in rss_items]
+    return all_items
+
+# In your main script or main function
+all_items_from_all_feeds = []
+
+# Loop through all RSS feeds and aggregate all items
+for feed_url, feed_type in rss_urls:
+    rss_items = fetch_rss_items(feed_url)  # Assume you have a function that fetches and returns all items from an RSS feed
+    all_items = process_all_rss_items(rss_items, feed_type)
+    all_items_from_all_feeds.extend(all_items)
+
+# Sort all items based on pub_date
+sorted_items = sorted(all_items_from_all_feeds, key=lambda x: x['pub_date'], reverse=True)
+
+# Convert datetime back to string for JSON serialization
+for item in sorted_items:
+    item['pub_date'] = item['pub_date'].strftime('%a, %d %b %Y %H:%M:%S %z')
+
+for item in sorted_items:
+    item['pub_date'] = item['pub_date'].strftime('%a, %d %b %Y %H:%M:%S %z')
+    
 def scrape_additional_info(link, feed_type):
     parsed_url = urlparse(link)
     clean_url = urlunparse((parsed_url.scheme, parsed_url.netloc, parsed_url.path, '', '', ''))
