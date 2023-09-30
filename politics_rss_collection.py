@@ -9,6 +9,7 @@ import re
 import html
 from datetime import datetime, timezone
 from dateutil import parser
+from bs4 import BeautifulSoup
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -62,12 +63,21 @@ for blog in rss_tracker_data["blogs"]:
         else:
             continue  # Skip this entry and move to the next
         if article_date > last_fetched_date:
-            description_cleaned = re.sub('<[^<]+?>', '', entry.get("description", ""))  # Remove HTML tags
-            description_cleaned = html.unescape(description_cleaned)  # Convert HTML entities to their respective characters
+            description_raw = entry.get("description", "")
+            
+            # Special handling for ProPublica.org descriptions
+            if blog["blog_name"] == "ProPublica.org":
+                soup = BeautifulSoup(description_raw, 'html.parser')
+                description_cleaned = ' '.join([p.text for p in soup.find_all('p', {'data-pp-blocktype': 'copy'})])
+            else:
+                description_cleaned = re.sub('<[^<]+?>', '', description_raw)  # Remove HTML tags
+            
+            # Further cleaning for all descriptions
+            description_cleaned = html.unescape(description_cleaned)  # Convert HTML entities to characters
             description_cleaned = description_cleaned.replace("&nbsp;", " ")  # Replace non-breaking spaces with regular spaces
             description_cleaned = re.sub(' +', ' ', description_cleaned)  # Replace multiple spaces with a single space
             description_cleaned = description_cleaned.strip()  # Remove leading and trailing whitespaces
-
+            
             new_articles.append({
                 "blog_name": blog["blog_name"],
                 "url": entry.link,
