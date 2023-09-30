@@ -122,7 +122,7 @@ def main():
     rss_urls = [
         ('https://www.govtrack.us/events/events.rss?list_id=2xtKwzEbrPGqdftV', 'Activity')
         # ('https://www.govtrack.us/events/events.rss?list_id=bIEEeNizAdvQ12hc', 'Votes'),
-        # ('https://www.govtrack.us/events/events.rss?list_id=jjfjQNLQe3meewpG', 'New')
+        ('https://www.govtrack.us/events/events.rss?list_id=jjfjQNLQe3meewpG', 'New')
     ]
     all_items = []
     for url, feed_type in rss_urls:
