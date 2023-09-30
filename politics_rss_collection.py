@@ -62,9 +62,40 @@ def scrape_additional_info(link, feed_type):
         bill_text_link = vote_explainer_link.replace('?utm_campaign=govtrack_feed&amp;utm_source=govtrack/feed&amp;utm_medium=rss', '/text')
     return bill_overview, bill_text_link, bill_summary
 
+import requests
+
 def write_to_json(data, file_name):
-    with open(file_name, 'w', encoding='utf-8') as outfile:
-        json.dump(data, outfile, ensure_ascii=False, indent=4)
+    """
+    Write the given data to a Gist file.
+
+    Parameters:
+    data (dict): The data to write to the file.
+    file_name (str): The name of the file to write to.
+
+    Returns:
+    None
+    """
+    
+    headers = {
+        "Authorization": f"token {GIST_TOKEN}",
+        "Accept": "application/vnd.github.v3+json"
+    }
+    
+    payload = {
+        "files": {
+            file_name: {
+                "content": json.dumps(data, indent=4, ensure_ascii=False)
+            }
+        }
+    }
+    
+    response = requests.patch(f"https://api.github.com/gists/{GIST_ID_DETAILS}", headers=headers, json=payload)
+    
+    if response.status_code == 200:
+        print(f"Successfully updated {file_name} in gist {GIST_ID_DETAILS}")
+    else:
+        print(f"Failed to update gist. Status code: {response.status_code}, Response: {response.text}")
+
 
 def main():
     # URLs of the RSS feeds
