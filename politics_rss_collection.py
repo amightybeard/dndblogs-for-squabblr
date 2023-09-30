@@ -60,9 +60,11 @@ def scrape_additional_info(link, feed_type):
     elif feed_type == 'Votes':
         vote_explainer_div = soup.find(id='vote_explainer')
         vote_explainer_link = "https://www.govtrack.us" + vote_explainer_div.a['href'] if vote_explainer_div and vote_explainer_div.a else ''
-        if not vote_explainer_link:
-            print(f"Error: Missing vote explainer link for link {link}")
-            return None  # or handle this case appropriately
+        if vote_explainer_div and vote_explainer_div.a and 'href' in vote_explainer_div.a.attrs:
+            vote_explainer_link = "https://www.govtrack.us" + vote_explainer_div.a['href']
+        else:
+            print(f"Warning: Missing or malformed vote explainer link for {link}. Proceeding with empty explainer link.")
+            vote_explainer_link = ''
             
         explainer_response = requests.get(vote_explainer_link)
         explainer_soup = BeautifulSoup(explainer_response.text, 'html.parser')
