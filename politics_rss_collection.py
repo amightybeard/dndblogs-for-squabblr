@@ -39,26 +39,27 @@ def parse_rss_item(item, feed_type):
     # Log the details of the item being processed
     print(f"Processing: {title} at link: {link}")
     
-    bill_overview, bill_text, bill_summary = scrape_additional_info(link, feed_type)
+    bill_overview, bill_summary = scrape_additional_info(link, feed_type)  # Changed here
+    
     return {
         'bill_title': title,
         'bill_link': link,
         'bill_description': description,
         'bill_overview': bill_overview,
-        'bill_text': bill_text,
+        'bill_text': bill_text,  # This will now retain the cleaned URL
         'bill_summary': bill_summary,
         'posted': False,
         'type': feed_type
     }
 
 def scrape_additional_info(link, feed_type):
+    def scrape_additional_info(link, feed_type):
     response = requests.get(link)
     print(response)
     soup = BeautifulSoup(response.text, 'html.parser')
     content_div = soup.find(id='content')
     bill_overview = content_div.find(lambda tag: tag.name == 'p' and tag.parent == content_div)
     bill_overview = bill_overview.text if bill_overview else ''
-    bill_text_link = link.replace('?utm_campaign=govtrack_feed&amp;utm_source=govtrack/feed&amp;utm_medium=rss', '/text')
     bill_summary = ''
     if feed_type == 'Activity':
         summary_link = link.replace('?utm_campaign=govtrack_feed&amp;utm_source=govtrack/feed&amp;utm_medium=rss', '/summary')
@@ -80,7 +81,7 @@ def scrape_additional_info(link, feed_type):
         content_div = explainer_soup.find(id='content')
         bill_overview = content_div.find('p').text if content_div else ''
         bill_text_link = vote_explainer_link.replace('?utm_campaign=govtrack_feed&amp;utm_source=govtrack/feed&amp;utm_medium=rss', '/text')
-    return bill_overview, bill_text_link, bill_summary
+    return bill_overview, bill_summary  # Removed bill_text_link
 
 import requests
 
