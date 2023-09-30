@@ -61,11 +61,16 @@ def scrape_additional_info(link, feed_type):
     bill_overview = bill_overview.text if bill_overview else ''
     bill_summary = ''
     if feed_type == 'Activity':
-        summary_link = link.replace('?utm_campaign=govtrack_feed&amp;utm_source=govtrack/feed&amp;utm_medium=rss', '/summary')
+        summary_link = clean_url + '/summary'  # using the cleaned URL without query parameters
         summary_response = requests.get(summary_link)
         summary_soup = BeautifulSoup(summary_response.text, 'html.parser')
         summary_div = summary_soup.find(id='libraryofcongress')
-        bill_summary = summary_div.text if summary_div else ''
+        
+        if summary_div:
+            bill_summary = " ".join([p.text for p in summary_div.find_all('p')])  # Concatenating all paragraphs
+        else:
+            print(f"Warning: Missing or malformed summary for {link}. Proceeding with empty summary.")
+            bill_summary = ''
     elif feed_type == 'Votes':
         vote_explainer_div = soup.find(id='vote_explainer')
         vote_explainer_link = "https://www.govtrack.us" + vote_explainer_div.a['href'] if vote_explainer_div and vote_explainer_div.a else ''
