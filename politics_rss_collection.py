@@ -4,6 +4,7 @@ import requests
 from bs4 import BeautifulSoup
 import json
 import os
+from urllib.parse import urlparse, urlunparse
 
 # Constants
 GIST_TOKEN = os.environ.get('POL_GIST_TOKEN')
@@ -27,6 +28,13 @@ def parse_rss_item(item, feed_type):
     title = item.find('title').text
     link = item.find('link').text
     description = item.find('description').text
+    
+    # Parse the URL to remove the query parameters
+    parsed_url = urlparse(item.find('link').text)
+    clean_url = urlunparse((parsed_url.scheme, parsed_url.netloc, parsed_url.path, '', '', ''))
+    
+    # For bill_text, append /text to the clean URL
+    bill_text = clean_url + '/text'
 
     # Log the details of the item being processed
     print(f"Processing: {title} at link: {link}")
@@ -48,7 +56,8 @@ def scrape_additional_info(link, feed_type):
     print(response)
     soup = BeautifulSoup(response.text, 'html.parser')
     content_div = soup.find(id='content')
-    bill_overview = content_div.find('p').text if content_div else ''
+    bill_overview = content_div.find(lambda tag: tag.name == 'p' and tag.parent == content_div)
+    bill_overview = bill_overview.text if bill_overview else ''
     bill_text_link = link.replace('?utm_campaign=govtrack_feed&amp;utm_source=govtrack/feed&amp;utm_medium=rss', '/text')
     bill_summary = ''
     if feed_type == 'Activity':
