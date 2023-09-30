@@ -21,6 +21,7 @@ jobs:
       run: |
         pip install feedparser requests
         pip install feedparser requests python-dateutil
+        pip install beautifulsoup4
 
     - name: Run RSS collection script
       env:
