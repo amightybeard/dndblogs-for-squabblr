@@ -53,7 +53,6 @@ def parse_rss_item(item, feed_type):
     }
 
 def scrape_additional_info(link, feed_type):
-    def scrape_additional_info(link, feed_type):
     response = requests.get(link)
     print(response)
     soup = BeautifulSoup(response.text, 'html.parser')
