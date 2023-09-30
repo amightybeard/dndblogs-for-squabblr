@@ -41,6 +41,7 @@ def parse_rss_item(item, feed_type):
 
 def scrape_additional_info(link, feed_type):
     response = requests.get(link)
+    print(response.text)  # Print the HTML of the page
     soup = BeautifulSoup(response.text, 'html.parser')
     content_div = soup.find(id='content')
     bill_overview = content_div.find('p').text if content_div else ''
@@ -56,7 +57,7 @@ def scrape_additional_info(link, feed_type):
         vote_explainer_div = soup.find(id='vote_explainer')
         vote_explainer_link = "https://www.govtrack.us" + vote_explainer_div.a['href'] if vote_explainer_div and vote_explainer_div.a else ''
         if not vote_explainer_link:
-            print(f"Error: Missing vote explainer link for item {item}")
+            print(f"Error: Missing vote explainer link for link {link}")
             return None  # or handle this case appropriately
             
         explainer_response = requests.get(vote_explainer_link)
