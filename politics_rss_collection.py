@@ -53,15 +53,17 @@ def parse_rss_item(item, feed_type):
     }
 
 def scrape_additional_info(link, feed_type):
+    parsed_url = urlparse(link)
+    clean_url = urlunparse((parsed_url.scheme, parsed_url.netloc, parsed_url.path, '', '', ''))
+    
     response = requests.get(link)
-    print(response)
     soup = BeautifulSoup(response.text, 'html.parser')
     content_div = soup.find(id='content')
     bill_overview = content_div.find(lambda tag: tag.name == 'p' and tag.parent == content_div)
     bill_overview = bill_overview.text if bill_overview else ''
     bill_summary = ''
     if feed_type == 'Activity':
-        summary_link = clean_url + '/summary'  # using the cleaned URL without query parameters
+        summary_link = clean_url + '/summary'
         summary_response = requests.get(summary_link)
         summary_soup = BeautifulSoup(summary_response.text, 'html.parser')
         summary_div = summary_soup.find(id='libraryofcongress')
