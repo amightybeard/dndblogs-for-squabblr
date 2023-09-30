@@ -25,6 +25,6 @@ jobs:
           pip install lxml  # if you decide to use lxml as the parser
 
       - name: Run RSS collection script
-        run: python ./politics_rss_collection.py
+        run: python politics_rss_collection.py
         env:
           POL_GIST_TOKEN: ${{ secrets.DNDBLOGS_GIST_TOKEN }}
