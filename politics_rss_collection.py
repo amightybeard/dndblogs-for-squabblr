@@ -27,6 +27,10 @@ def parse_rss_item(item, feed_type):
     title = item.find('title').text
     link = item.find('link').text
     description = item.find('description').text
+
+    # Log the details of the item being processed
+    print(f"Processing: {title} at link: {link}")
+    
     bill_overview, bill_text, bill_summary = scrape_additional_info(link, feed_type)
     return {
         'bill_title': title,
@@ -41,7 +45,7 @@ def parse_rss_item(item, feed_type):
 
 def scrape_additional_info(link, feed_type):
     response = requests.get(link)
-    print(response.text)  # Print the HTML of the page
+    print(response)
     soup = BeautifulSoup(response.text, 'html.parser')
     content_div = soup.find(id='content')
     bill_overview = content_div.find('p').text if content_div else ''
