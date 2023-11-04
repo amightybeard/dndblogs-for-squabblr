@@ -93,7 +93,12 @@ all_items_from_all_feeds = []
 
 # Loop through all RSS feeds and aggregate all items
 for feed_url, feed_type in rss_urls:
-    rss_items = 
+    
+    # Simulate fetching the RSS feed content
+    rss_feed_content = simulate_fetch_rss(feed_url)
+    # Parse the RSS feed items
+    rss_items = fetch_rss_items(rss_feed_content)
+    
 def simulate_fetch_rss(feed_url):
     xml_file_map = {
         'https://www.govtrack.us/events/events.rss?list_id=2xtKwzEbrPGqdftV': 'usgovtracker_rssfeed_activity.xml',
