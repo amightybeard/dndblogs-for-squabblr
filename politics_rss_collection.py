@@ -12,6 +12,13 @@ GIST_TOKEN = os.environ.get('POL_GIST_TOKEN')
 GIST_ID_DETAILS = '6c90a5d9642610efdbf83840dfc0fb76'
 FILE_NAME_DETAILS = 'politics-article-details.json'
 
+# RSS URLs
+rss_urls = [
+    ('https://www.govtrack.us/events/events.rss?list_id=2xtKwzEbrPGqdftV', 'Activity'),
+    ('https://www.govtrack.us/events/events.rss?list_id=bIEEeNizAdvQ12hc', 'Votes'),
+    ('https://www.govtrack.us/events/events.rss?list_id=jjfjQNLQe3meewpG', 'New')
+]
+
 def get_rss_feed(url):
     response = requests.get(url)
     return response.text
@@ -179,12 +186,6 @@ def write_to_json(data, file_name):
 
 
 def main():
-    # URLs of the RSS feeds
-    rss_urls = [
-        ('https://www.govtrack.us/events/events.rss?list_id=2xtKwzEbrPGqdftV', 'Activity'),
-        # ('https://www.govtrack.us/events/events.rss?list_id=bIEEeNizAdvQ12hc', 'Votes'),
-        ('https://www.govtrack.us/events/events.rss?list_id=jjfjQNLQe3meewpG', 'New')
-    ]
     all_items = []
     for url, feed_type in rss_urls:
         rss_content = get_rss_feed(url)
