@@ -16,14 +16,26 @@ def get_rss_feed(url):
     response = requests.get(url)
     return response.text
 
-def parse_rss(xml_content, feed_type):
-    soup = BeautifulSoup(xml_content, 'xml')
-    items = soup.find_all('item')
-    parsed_items = []
-    for item in items:
-        parsed = parse_rss_item(item, feed_type)
-        parsed_items.append(parsed)
-    return parsed_items
+def parse_votes_description(description):
+    """
+    Parses the description for vote results which are in the format "Passed X/Y".
+    """
+    if 'Vote:' in description:
+        vote_result = description.split("Vote:")[1].strip()
+        return vote_result
+    return None
+
+def parse_activity_description(description):
+    """
+    Parses the description for activity information which includes the last action and next step.
+    """
+    last_action = None
+    next_step = None
+    if 'Last Action:' in description and 'Explanation:' in description:
+        parts = description.split("Last Action:")
+        last_action = parts[1].split("Explanation:")[0].strip()
+        next_step = parts[1].split("Explanation:")[1].strip()
+    return last_action, next_step
 
 def parse_rss_item(item, feed_type):
     title = item.find('title').text
@@ -35,28 +47,41 @@ def parse_rss_item(item, feed_type):
     pub_date = datetime.strptime(pub_date_str, '%a, %d %b %Y %H:%M:%S %z')
     
     # Parse the URL to remove the query parameters
-    parsed_url = urlparse(item.find('link').text)
+    parsed_url = urlparse(link)
     clean_url = urlunparse((parsed_url.scheme, parsed_url.netloc, parsed_url.path, '', '', ''))
     
     # For bill_text, append /text to the clean URL
     bill_text = clean_url + '/text'
 
-    # Log the details of the item being processed
-    print(f"Processing: {title} at link: {link}")
-    
-    bill_overview, bill_summary = scrape_additional_info(link, feed_type)  # Changed here
-    
-    return {
+    # Scrape additional info based on the link and feed type
+    bill_overview, bill_summary = scrape_additional_info(link, feed_type)
+
+    # Initialize the article details dictionary
+    article_details = {
         'bill_title': title,
         'bill_link': link,
         'bill_description': description,
         'bill_overview': bill_overview,
-        'bill_text': bill_text,  # This will now retain the cleaned URL
+        'bill_text': bill_text,
         'bill_summary': bill_summary,
-        'pub_date': pub_date,
+        'pub_date': pub_date.strftime('%Y-%m-%d %H:%M:%S'),  # Formatting date for JSON serialization
         'posted': False,
         'type': feed_type
     }
+    
+    # New parsing logic for 'Votes' and 'Activity' types
+    if feed_type == 'Votes':
+        vote_result = parse_votes_description(description)
+        if vote_result:
+            article_details['vote_result'] = vote_result
+    elif feed_type == 'Activity':
+        last_action, next_step = parse_activity_description(description)
+        if last_action:
+            article_details['last_action'] = last_action
+        if next_step:
+            article_details['next_step'] = next_step
+
+    return article_details
 
 def process_all_rss_items(rss_items, feed_type):
     all_items = [parse_rss_item(item, feed_type) for item in rss_items]
