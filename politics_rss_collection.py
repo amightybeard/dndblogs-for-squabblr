@@ -1,5 +1,6 @@
 # politics_rss_collection.py
 
+from xml.etree import ElementTree
 import requests
 from bs4 import BeautifulSoup
 import json
@@ -11,13 +12,6 @@ from datetime import datetime
 GIST_TOKEN = os.environ.get('POL_GIST_TOKEN')
 GIST_ID_DETAILS = '6c90a5d9642610efdbf83840dfc0fb76'
 FILE_NAME_DETAILS = 'politics-article-details.json'
-
-# RSS URLs
-rss_urls = [
-    ('https://www.govtrack.us/events/events.rss?list_id=2xtKwzEbrPGqdftV', 'Activity'),
-    ('https://www.govtrack.us/events/events.rss?list_id=bIEEeNizAdvQ12hc', 'Votes'),
-    ('https://www.govtrack.us/events/events.rss?list_id=jjfjQNLQe3meewpG', 'New')
-]
 
 def get_rss_feed(url):
     response = requests.get(url)
@@ -99,7 +93,20 @@ all_items_from_all_feeds = []
 
 # Loop through all RSS feeds and aggregate all items
 for feed_url, feed_type in rss_urls:
-    rss_items = fetch_rss_items(feed_url)  # Assume you have a function that fetches and returns all items from an RSS feed
+    rss_items = 
+def simulate_fetch_rss(feed_url):
+    xml_file_map = {
+        'https://www.govtrack.us/events/events.rss?list_id=2xtKwzEbrPGqdftV': 'usgovtracker_rssfeed_activity.xml',
+        'https://www.govtrack.us/events/events.rss?list_id=bIEEeNizAdvQ12hc': 'usgovtracker_rssfeed_votes.xml',
+        'https://www.govtrack.us/events/events.rss?list_id=jjfjQNLQe3meewpG': 'usgovtracker_rssfeed_new.xml'
+    }
+    # Assuming the script runs in the same directory as the XML files
+    xml_file_path = xml_file_map[feed_url]
+    with open(xml_file_path, 'r') as file:
+        return file.read()
+
+rss_items = fetch_rss_items(simulate_fetch_rss(feed_url))
+  # Assume you have a function that fetches and returns all items from an RSS feed
     all_items = process_all_rss_items(rss_items, feed_type)
     all_items_from_all_feeds.extend(all_items)
 
@@ -185,7 +192,58 @@ def write_to_json(data, file_name):
         print(f"Failed to update gist. Status code: {response.status_code}, Response: {response.text}")
 
 
+
+def fetch_rss_items(xml_content):
+    """
+    Parses the XML content of an RSS feed and extracts the items.
+    
+    :param xml_content: The XML content of the RSS feed as a string.
+    :return: A list of parsed items from the RSS feed.
+    """
+    # Parse the XML content
+    root = ElementTree.fromstring(xml_content)
+    
+    # Find all item elements
+    items = root.findall('.//item')
+    
+    # Parse each item and collect necessary details
+    rss_items = []
+    for item in items:
+        title = item.find('title').text
+        link = item.find('link').text
+        description = item.find('description').text
+        pub_date = item.find('pubDate').text
+
+        # Create a dictionary for each item
+        rss_item = {
+            'title': title,
+            'link': link,
+            'description': description,
+            'pubDate': pub_date
+        }
+        rss_items.append(rss_item)
+    
+    return rss_items
+
 def main():
+    def simulate_fetch_rss(feed_url):
+    xml_file_map = {
+    'https://www.govtrack.us/events/events.rss?list_id=2xtKwzEbrPGqdftV': 'usgovtracker_rssfeed_activity.xml',
+    'https://www.govtrack.us/events/events.rss?list_id=bIEEeNizAdvQ12hc': 'usgovtracker_rssfeed_votes.xml',
+    'https://www.govtrack.us/events/events.rss?list_id=jjfjQNLQe3meewpG': 'usgovtracker_rssfeed_new.xml'
+    }
+    # Assuming the script runs in the same directory as the XML files
+    xml_file_path = xml_file_map[feed_url]
+    with open(xml_file_path, 'r') as file:
+    return file.read()
+
+    rss_items = fetch_rss_items(simulate_fetch_rss(feed_url))
+    # URLs of the RSS feeds
+    rss_urls = [
+        ('https://www.govtrack.us/events/events.rss?list_id=2xtKwzEbrPGqdftV', 'Activity'),
+        # ('https://www.govtrack.us/events/events.rss?list_id=bIEEeNizAdvQ12hc', 'Votes'),
+        ('https://www.govtrack.us/events/events.rss?list_id=jjfjQNLQe3meewpG', 'New')
+    ]
     all_items = []
     for url, feed_type in rss_urls:
         rss_content = get_rss_feed(url)
